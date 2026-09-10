@@ -13,7 +13,30 @@ export function drawEnemy(
   c.save();
   c.translate(e.x, e.y);
   circle(c, 2, 5, e.radius + 2, "#050b1099");
-  if (e.kind === "fast") {
+  if (e.kind === "boss") {
+    // Jagged crown silhouette so a boss reads instantly among the crowd.
+    ring(c, 0, 0, e.radius + 10, color + "33", 6);
+    c.fillStyle = "#3a1230";
+    c.strokeStyle = color;
+    c.lineWidth = 3;
+    c.beginPath();
+    for (let i = 0; i < 16; i++) {
+      const a = (i * Math.PI) / 8;
+      const r = i % 2 ? e.radius : e.radius + 9;
+      const x = Math.cos(a) * r,
+        y = Math.sin(a) * r;
+      if (i === 0) c.moveTo(x, y);
+      else c.lineTo(x, y);
+    }
+    c.closePath();
+    c.fill();
+    c.stroke();
+    ring(c, 0, 0, e.radius * 0.55, "#ff9ab8", 2);
+    circle(c, -9, -4, 4, color);
+    circle(c, 9, -4, 4, color);
+    c.fillStyle = "#ffd6e2";
+    c.fillRect(-12, 8, 24, 3);
+  } else if (e.kind === "fast") {
     c.fillStyle = "#532c24";
     c.strokeStyle = color;
     c.lineWidth = 2;
@@ -56,8 +79,10 @@ export function drawEnemy(
     c.lineTo(3, -e.radius + 2);
     c.fill();
   }
-  circle(c, -4, -1, 2, color);
-  circle(c, 4, -1, 2, color);
+  if (e.kind !== "boss") {
+    circle(c, -4, -1, 2, color);
+    circle(c, 4, -1, 2, color);
+  }
   if (e.hp < e.maxHp) {
     c.fillStyle = "#10191e";
     c.fillRect(-e.radius, -e.radius - 10, e.radius * 2, 3);

@@ -42,6 +42,26 @@ export function GameHUD({
           Ⅱ <span>ESC</span>
         </button>
       </header>
+      {ui.boss && (
+        <div className="boss-hud" role="status" aria-live="polite">
+          <div className="meter-label">
+            <span>☠ BOSS {ui.boss.index}</span>
+            <strong>
+              {Math.ceil(ui.boss.hp)} <i>/ {ui.boss.maxHp}</i>
+            </strong>
+          </div>
+          <div
+            className="meter boss"
+            role="progressbar"
+            aria-label="보스 체력"
+            aria-valuenow={ui.boss.hp}
+            aria-valuemin={0}
+            aria-valuemax={ui.boss.maxHp}
+          >
+            <span style={{ width: `${(ui.boss.hp / ui.boss.maxHp) * 100}%` }} />
+          </div>
+        </div>
+      )}
       <div className="xp-hud">
         <span>
           LV. <b>{ui.level.toString().padStart(2, "0")}</b>

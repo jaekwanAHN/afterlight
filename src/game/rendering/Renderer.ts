@@ -43,6 +43,7 @@ export class Renderer {
         ...cfg,
         hp: cfg.maxHp,
         flash: 0,
+        bossIndex: 0,
         orbitHitAt: 0,
         beamHitAt: 0,
         pushX: 0,

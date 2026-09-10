@@ -4,7 +4,7 @@ import type { Vec2 } from "../utils/math";
 import type { SpatialGrid } from "../utils/SpatialGrid";
 import { GAME_CONFIG } from "../config/gameConfig";
 import { movePlayer } from "../systems/MovementSystem";
-import { spawnEnemies } from "../systems/EnemySpawnSystem";
+import { spawnBosses, spawnEnemies } from "../systems/EnemySpawnSystem";
 import { moveEnemies } from "../systems/EnemyMovementSystem";
 import { playerContacts } from "../systems/CollisionSystem";
 import { fireMagicBolt } from "../weapons/MagicBolt";
@@ -37,6 +37,7 @@ export function simulate(
   }
   movePlayer(state.player, input, dt);
   spawnEnemies(state, dt);
+  spawnBosses(state);
   spawnItems(state, dt);
   grid.rebuild(state.enemies);
   moveEnemies(state, grid, dt);

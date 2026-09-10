@@ -14,7 +14,9 @@ export type SoundEvent =
   | "beamOn"
   | "beamOff"
   | "magnet"
-  | "bomb";
+  | "bomb"
+  | "boss"
+  | "bossKill";
 // Minimum gap between repeats (seconds). Kills and pickups can happen dozens of times per frame.
 export const SOUND_THROTTLE: Record<SoundEvent, number> = {
   bolt: 0.05,
@@ -33,6 +35,8 @@ export const SOUND_THROTTLE: Record<SoundEvent, number> = {
   beamOff: 0,
   magnet: 0.5,
   bomb: 0.5,
+  boss: 0.5,
+  bossKill: 0.5,
 };
 export function shouldPlay(
   event: SoundEvent,

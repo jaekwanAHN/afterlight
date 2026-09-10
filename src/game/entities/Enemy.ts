@@ -1,4 +1,4 @@
-export type EnemyKind = "normal" | "fast" | "tank";
+export type EnemyKind = "normal" | "fast" | "tank" | "boss";
 export interface Enemy {
   id: number;
   kind: EnemyKind;
@@ -10,6 +10,8 @@ export interface Enemy {
   moveSpeed: number;
   damage: number;
   expReward: number;
+  // 1-based ordinal for bosses (which minute they belong to); 0 for regular enemies.
+  bossIndex: number;
   flash: number;
   orbitHitAt: number;
   beamHitAt: number;

@@ -228,6 +228,30 @@ const RECIPES: Record<
     tones: [{ wave: "sine", from: 160, to: 30, duration: 0.9, gain: 0.7 }],
     noise: { duration: 0.8, gain: 0.6, cutoff: 2600 },
   },
+  boss: {
+    tones: [0, 1, 2].map((i) => ({
+      wave: "square" as Wave,
+      from: 196,
+      to: 130,
+      duration: 0.28,
+      gain: 0.22,
+      delay: i * 0.32,
+    })),
+  },
+  bossKill: {
+    tones: [
+      { wave: "square", from: 300, to: 60, duration: 0.5, gain: 0.3 },
+      {
+        wave: "triangle",
+        from: 784,
+        to: 1568,
+        duration: 0.5,
+        gain: 0.18,
+        delay: 0.3,
+      },
+    ],
+    noise: { duration: 0.6, gain: 0.4, cutoff: 2000 },
+  },
   beamOn: { tones: [] },
   beamOff: { tones: [] },
   victory: {

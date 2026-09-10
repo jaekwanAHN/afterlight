@@ -366,6 +366,27 @@ kbd {
   border-radius: 3px;
   transition: width 0.1s linear;
 }
+.boss-hud {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, 60vw);
+  padding: 10px 14px;
+  border: 1px solid #6b2a44;
+  border-radius: 8px;
+  background: #1a0f16cc;
+  animation: appear 0.3s ease-out;
+}
+.boss-hud .meter-label {
+  margin-bottom: 7px;
+}
+.boss-hud .meter-label > span {
+  color: #ff7ea2;
+}
+.meter.boss > span {
+  background: linear-gradient(90deg, #ff5c8a, #ff9ab8);
+}
 .timer {
   position: absolute;
   left: 50%;
@@ -883,6 +904,11 @@ kbd {
   .health-block {
     width: 150px;
     padding: 11px;
+  }
+  .boss-hud {
+    top: 70px;
+    width: 70vw;
+    padding: 7px 10px;
   }
   .meter-label {
     font-size: 7px;

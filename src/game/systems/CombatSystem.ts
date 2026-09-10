@@ -47,10 +47,12 @@ export function updateProjectiles(
   state.projectiles = state.projectiles.filter((p) => !p.dead);
 }
 export function collectDeaths(state: GameState) {
-  let killed = false;
+  let killed = false,
+    bossKilled = false;
   for (const enemy of state.enemies) {
     if (!enemy.dead) continue;
     killed = true;
+    if (enemy.bossIndex) bossKilled = true;
     state.kills++;
     state.orbs.push({
       id: state.nextId++,
@@ -66,16 +68,19 @@ export function collectDeaths(state: GameState) {
       y: enemy.y,
       radius: enemy.radius,
       color:
-        enemy.kind === "tank"
-          ? "#b395fc"
-          : enemy.kind === "fast"
-            ? "#ffb45c"
-            : "#fa7183",
+        enemy.kind === "boss"
+          ? "#ff5c8a"
+          : enemy.kind === "tank"
+            ? "#b395fc"
+            : enemy.kind === "fast"
+              ? "#ffb45c"
+              : "#fa7183",
       life: 0.3,
       duration: 0.3,
     });
   }
-  if (killed) state.sounds.push("kill");
+  if (bossKilled) state.sounds.push("bossKill");
+  else if (killed) state.sounds.push("kill");
   state.enemies = state.enemies.filter((e) => !e.dead);
 }
 export function updateEffects(state: GameState, dt: number) {

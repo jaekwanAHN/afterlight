@@ -1,5 +1,6 @@
 import type { GameState } from "../core/GameState";
 import {
+  BOSS_CONFIG,
   ENEMY_CONFIG,
   SPAWN_CONFIG,
   difficultyAt,
@@ -32,6 +33,7 @@ export function makeEnemy(
     ...config,
     maxHp,
     hp: maxHp,
+    bossIndex: 0,
     flash: 0,
     orbitHitAt: 0,
     beamHitAt: 0,
@@ -39,6 +41,37 @@ export function makeEnemy(
     pushY: 0,
     dead: false,
   };
+}
+export function makeBoss(
+  state: GameState,
+  index: number,
+  random: () => number = Math.random,
+): Enemy {
+  const boss = makeEnemy(state, "boss", random);
+  const grow = (rate: number) => 1 + rate * (index - 1);
+  boss.bossIndex = index;
+  boss.maxHp = Math.round(ENEMY_CONFIG.boss.maxHp * grow(BOSS_CONFIG.hpGrowth));
+  boss.hp = boss.maxHp;
+  boss.moveSpeed = ENEMY_CONFIG.boss.moveSpeed * grow(BOSS_CONFIG.speedGrowth);
+  boss.damage = Math.round(
+    ENEMY_CONFIG.boss.damage * grow(BOSS_CONFIG.damageGrowth),
+  );
+  boss.expReward = Math.round(
+    ENEMY_CONFIG.boss.expReward * grow(BOSS_CONFIG.hpGrowth),
+  );
+  return boss;
+}
+// One boss per minute mark; a late frame never skips one because the count is tracked, not the time.
+export function spawnBosses(
+  state: GameState,
+  random: () => number = Math.random,
+) {
+  const due = Math.floor(state.elapsed / BOSS_CONFIG.interval);
+  while (state.bossesSpawned < due) {
+    state.bossesSpawned++;
+    state.enemies.push(makeBoss(state, state.bossesSpawned, random));
+    state.sounds.push("boss");
+  }
 }
 export function spawnEnemies(
   state: GameState,

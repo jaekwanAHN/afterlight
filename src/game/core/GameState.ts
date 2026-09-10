@@ -32,6 +32,7 @@ export interface GameState {
   nextId: number;
   spawnTimer: number;
   itemTimer: number;
+  bossesSpawned: number;
   elapsed: number;
   kills: number;
   viewport: { width: number; height: number };
@@ -55,10 +56,21 @@ export function createState(): GameState {
     nextId: 1,
     spawnTimer: 0,
     itemTimer: ITEM_CONFIG.firstAt,
+    bossesSpawned: 0,
     elapsed: 0,
     kills: 0,
     viewport: { width: 1280, height: 720 },
   };
+}
+// The HUD tracks the most recently spawned boss that is still alive.
+function activeBoss(s: GameState) {
+  let boss: Enemy | null = null;
+  for (const e of s.enemies)
+    if (e.bossIndex && !e.dead && (!boss || e.bossIndex > boss.bossIndex))
+      boss = e;
+  return boss
+    ? { index: boss.bossIndex, hp: boss.hp, maxHp: boss.maxHp }
+    : null;
 }
 export interface Snapshot {
   choices: UpgradeChoice[];
@@ -69,6 +81,7 @@ export interface Snapshot {
   beamLevel: number;
   novaLevel: number;
   flameLevel: number;
+  boss: { index: number; hp: number; maxHp: number } | null;
   status: GameStatus;
   hp: number;
   maxHp: number;
@@ -88,6 +101,7 @@ export function snapshot(s: GameState): Snapshot {
     beamLevel: s.weapons.beam.level,
     novaLevel: s.weapons.nova.level,
     flameLevel: s.weapons.flame.level,
+    boss: activeBoss(s),
     status: s.status,
     hp: s.player.hp,
     maxHp: s.player.maxHp,

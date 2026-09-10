@@ -19,7 +19,6 @@ export class AudioSystem {
   private noiseBuffer: AudioBuffer | null = null;
   private settings: AudioSettings = { sound: true, volume: 0.6 };
   private last: Partial<Record<SoundEvent, number>> = {};
-  private beamLoop: { osc: OscillatorNode; env: GainNode } | null = null;
   private unlock = () => {
     if (!this.ctx) {
       try {
@@ -41,7 +40,6 @@ export class AudioSystem {
   dispose() {
     window.removeEventListener("pointerdown", this.unlock);
     window.removeEventListener("keydown", this.unlock);
-    this.stopBeam();
     void this.ctx?.close();
     this.ctx = null;
     this.master = null;
@@ -58,44 +56,11 @@ export class AudioSystem {
   play = (event: SoundEvent) => {
     if (!this.ctx || !this.settings.sound || this.ctx.state !== "running")
       return;
-    if (event === "beamOn") return this.startBeam();
-    if (event === "beamOff") return this.stopBeam();
     if (!shouldPlay(event, this.ctx.currentTime, this.last)) return;
     const recipe = RECIPES[event];
     for (const tone of recipe.tones) this.tone(tone);
     if (recipe.noise) this.noise(recipe.noise);
   };
-  // The beam is continuous, so it gets a sustained hum instead of one-shot recipes.
-  private startBeam() {
-    if (this.beamLoop || !this.ctx || !this.master) return;
-    const ctx = this.ctx,
-      osc = ctx.createOscillator(),
-      wobble = ctx.createOscillator(),
-      depth = ctx.createGain(),
-      env = ctx.createGain();
-    osc.type = "sawtooth";
-    osc.frequency.value = 55;
-    wobble.type = "sine";
-    wobble.frequency.value = 6;
-    depth.gain.value = 4;
-    wobble.connect(depth).connect(osc.frequency);
-    env.gain.setValueAtTime(0.0001, ctx.currentTime);
-    env.gain.exponentialRampToValueAtTime(0.07, ctx.currentTime + 0.25);
-    osc.connect(env).connect(this.master);
-    osc.start();
-    wobble.start();
-    this.beamLoop = { osc, env };
-  }
-  private stopBeam() {
-    if (!this.beamLoop || !this.ctx) return;
-    const { osc, env } = this.beamLoop,
-      now = this.ctx.currentTime;
-    env.gain.cancelScheduledValues(now);
-    env.gain.setValueAtTime(Math.max(env.gain.value, 0.0001), now);
-    env.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-    osc.stop(now + 0.2);
-    this.beamLoop = null;
-  }
   private tone({ wave, from, to = from, duration, gain, delay = 0 }: Tone) {
     const ctx = this.ctx!,
       start = ctx.currentTime + delay;
@@ -252,8 +217,19 @@ const RECIPES: Record<
     ],
     noise: { duration: 0.6, gain: 0.4, cutoff: 2000 },
   },
-  beamOn: { tones: [] },
-  beamOff: { tones: [] },
+  beamCharge: {
+    tones: [
+      { wave: "sine", from: 180, to: 1100, duration: 0.55, gain: 0.16 },
+      { wave: "triangle", from: 90, to: 550, duration: 0.55, gain: 0.1 },
+    ],
+  },
+  beamFire: {
+    tones: [
+      { wave: "sawtooth", from: 1200, to: 180, duration: 0.42, gain: 0.32 },
+      { wave: "sine", from: 70, to: 40, duration: 0.5, gain: 0.35 },
+    ],
+    noise: { duration: 0.3, gain: 0.3, cutoff: 5000 },
+  },
   victory: {
     tones: [523, 659, 784, 1047, 1319].map((f, i) => ({
       wave: "triangle" as Wave,

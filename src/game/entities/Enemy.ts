@@ -14,7 +14,6 @@ export interface Enemy {
   bossIndex: number;
   flash: number;
   orbitHitAt: number;
-  beamHitAt: number;
   // Knockback velocity from a nova; decays each frame in EnemyMovementSystem.
   pushX: number;
   pushY: number;

@@ -11,8 +11,8 @@ export type SoundEvent =
   | "victory"
   | "nova"
   | "flame"
-  | "beamOn"
-  | "beamOff"
+  | "beamCharge"
+  | "beamFire"
   | "magnet"
   | "bomb"
   | "boss"
@@ -31,8 +31,8 @@ export const SOUND_THROTTLE: Record<SoundEvent, number> = {
   victory: 1,
   nova: 0.2,
   flame: 0.6,
-  beamOn: 0,
-  beamOff: 0,
+  beamCharge: 0.3,
+  beamFire: 0.3,
   magnet: 0.5,
   bomb: 0.5,
   boss: 0.5,

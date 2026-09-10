@@ -1,15 +1,14 @@
 import { expect, it } from "vitest";
-import { Game } from "../src/game/core/Game";
 import { createState } from "../src/game/core/GameState";
 import { makeEnemy } from "../src/game/systems/EnemySpawnSystem";
 import { moveEnemies } from "../src/game/systems/EnemyMovementSystem";
 import { UPGRADES } from "../src/game/upgrades/upgrades";
-import { beamSegments, updateBeams } from "../src/game/weapons/BeamWeapon";
+import { updateBeams } from "../src/game/weapons/BeamWeapon";
+import { WEAPON_CONFIG } from "../src/game/config/weaponConfig";
 import { fireNova, updateNovas } from "../src/game/weapons/NovaWeapon";
 import { dropFlames, updateFlames } from "../src/game/weapons/FlameWeapon";
 import { SpatialGrid } from "../src/game/utils/SpatialGrid";
 import type { GameState } from "../src/game/core/GameState";
-import type { SoundEvent } from "../src/game/audio/soundEvents";
 import type { Enemy } from "../src/game/entities/Enemy";
 function place(
   s: GameState,
@@ -28,22 +27,46 @@ function gridOf(s: GameState) {
   grid.rebuild(s.enemies);
   return grid;
 }
-it("beam burns everything along its line at a limited tick rate", () => {
+it("beam charges, fires one burst along its line, then fades", () => {
   const s = createState();
   s.weapons.beam.level = 1;
-  expect(beamSegments(s)).toHaveLength(1);
   const near = place(s, 100, 0);
   const far = place(s, 600, 0);
   const off = place(s, 0, 300);
   updateBeams(s, 0);
-  updateBeams(s, 0);
+  expect(s.sounds).toEqual(["beamCharge"]);
+  expect(s.weapons.beam.charge).toBe(WEAPON_CONFIG.beam.chargeTime);
+  expect(near.hp).toBe(near.maxHp);
+  updateBeams(s, WEAPON_CONFIG.beam.chargeTime);
+  expect(s.sounds).toEqual(["beamCharge", "beamFire"]);
   const dmg = s.weapons.beam.damage;
   expect(near.hp).toBe(near.maxHp - dmg);
   expect(far.hp).toBe(far.maxHp - dmg);
   expect(off.hp).toBe(off.maxHp);
-  s.elapsed = 0.25;
+  expect(s.beams).toHaveLength(1);
+  expect(s.weapons.beam.timer).toBe(s.weapons.beam.cooldown);
+  // Fading visual deals no further damage and disappears.
+  updateBeams(s, WEAPON_CONFIG.beam.fadeDuration / 2);
+  expect(s.beams[0].life).toBeCloseTo(WEAPON_CONFIG.beam.fadeDuration / 2);
+  expect(near.hp).toBe(near.maxHp - dmg);
+  updateBeams(s, 1);
+  expect(s.beams).toHaveLength(0);
+  expect(s.sounds).toHaveLength(2);
+});
+it("beam stays quiet without a target and fans out with extra beams", () => {
+  const s = createState();
+  s.weapons.beam.level = 1;
+  updateBeams(s, 5);
+  expect(s.sounds).toHaveLength(0);
+  s.weapons.beam.count = 3;
+  place(s, 300, 0);
   updateBeams(s, 0);
-  expect(near.hp).toBe(near.maxHp - dmg * 2);
+  updateBeams(s, WEAPON_CONFIG.beam.chargeTime);
+  expect(s.beams.map((b) => b.angle)).toEqual([
+    -WEAPON_CONFIG.beam.spread,
+    0,
+    WEAPON_CONFIG.beam.spread,
+  ]);
 });
 it("nova strikes each enemy once and knocks it away from the player", () => {
   const s = createState();
@@ -94,7 +117,7 @@ it("unlocks each sweeper and grows every advertised stat", () => {
   for (const id of [
     "beam-power",
     "beam-width",
-    "beam-speed",
+    "beam-haste",
     "beam-count",
     "nova-power",
     "nova-range",
@@ -107,9 +130,8 @@ it("unlocks each sweeper and grows every advertised stat", () => {
     apply(id);
   expect(s.weapons.beam.damage).toBeGreaterThan(b.damage);
   expect(s.weapons.beam.width).toBeGreaterThan(b.width);
-  expect(s.weapons.beam.speed).toBeGreaterThan(b.speed);
+  expect(s.weapons.beam.cooldown).toBeLessThan(b.cooldown);
   expect(s.weapons.beam.count).toBe(2);
-  expect(beamSegments(s)).toHaveLength(2);
   expect(s.weapons.nova.damage).toBeGreaterThan(n.damage);
   expect(s.weapons.nova.maxRadius).toBeGreaterThan(n.maxRadius);
   expect(s.weapons.nova.cooldown).toBeLessThan(n.cooldown);
@@ -117,21 +139,4 @@ it("unlocks each sweeper and grows every advertised stat", () => {
   expect(s.weapons.flame.damage).toBeGreaterThan(f.damage);
   expect(s.weapons.flame.radius).toBeGreaterThan(f.radius);
   expect(s.weapons.flame.duration).toBeGreaterThan(f.duration);
-});
-it("beam hum starts and stops with game status", () => {
-  const played: SoundEvent[] = [];
-  const g = new Game(() => {});
-  g.setSoundSink((e) => played.push(e));
-  g.start();
-  expect(played).not.toContain("beamOn");
-  g.state.weapons.beam.level = 1;
-  g.pause();
-  expect(played).not.toContain("beamOn");
-  g.togglePause();
-  expect(played.at(-1)).toBe("beamOn");
-  g.pause();
-  expect(played.at(-1)).toBe("beamOff");
-  g.togglePause();
-  g.home();
-  expect(played.filter((e) => e === "beamOff")).toHaveLength(2);
 });

@@ -46,8 +46,17 @@ export function GameCanvas() {
     }
     let best = readRecords();
     let previous = "idle";
+    const audio = new AudioSystem();
     const game = new Game((s) => {
       setUi(s);
+      audio.setMusic(
+        s.status === "playing"
+          ? "play"
+          : s.status === "levelup" || s.status === "paused"
+            ? "duck"
+            : "off",
+        s.elapsed,
+      );
       if (
         (s.status === "gameover" || s.status === "victory") &&
         previous !== s.status
@@ -66,7 +75,6 @@ export function GameCanvas() {
       },
       () => game.pause(),
     );
-    const audio = new AudioSystem();
     audio.attach();
     game.setSoundSink(audio.play);
     const stored = readSettings();
@@ -176,6 +184,8 @@ export function GameCanvas() {
             // Preview the new level so the slider is audible while dragging.
             if (value.sound && value.volume !== settings.volume)
               audioRef.current?.play("select");
+            if (value.music && value.musicVolume !== settings.musicVolume)
+              audioRef.current?.play("pickup");
           }}
           onClose={() => {
             settingsOpenRef.current = false;

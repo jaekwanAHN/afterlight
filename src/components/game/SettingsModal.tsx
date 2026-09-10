@@ -61,6 +61,31 @@ export function SettingsModal({
             }
           />
         </label>
+        <label>
+          배경음악
+          <input
+            type="checkbox"
+            checked={settings.music}
+            onChange={(e) => onChange({ ...settings, music: e.target.checked })}
+          />
+        </label>
+        <label>
+          음악 볼륨
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(settings.musicVolume * 100)}
+            disabled={!settings.music}
+            aria-valuetext={`${Math.round(settings.musicVolume * 100)}%`}
+            onChange={(e) =>
+              onChange({
+                ...settings,
+                musicVolume: Number(e.target.value) / 100,
+              })
+            }
+          />
+        </label>
         <p>
           WASD / 방향키로 이동 · ESC 일시정지
           <br />

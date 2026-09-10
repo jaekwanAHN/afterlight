@@ -13,6 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Every code change, no matter how small, follows this sequence:
 
 1. **Issue first** — `gh issue create` describing the goal and scope before touching code. Ask the user only when the scope is genuinely ambiguous.
+   - **Label it.** Every issue and PR gets the area labels that apply: `ui`, `items`, `weapons`, `upgrades`, `audio`, `enemies`, `balance`, `input`, `rendering`, `workflow`, `tests`, `performance`, plus `bug` for defects. Use `--label` on create; for PRs, `gh pr edit --add-label` can fail on this repo, so fall back to `gh api -X PUT repos/<owner>/<repo>/issues/<n>/labels -f "labels[]=<name>"`.
 2. **Branch per issue** — branch off up-to-date `main` as `<type>/<short-slug>` (`feat/`, `fix/`, `refactor/`, `chore/`). Never commit directly to `main`.
 3. **Verify before commit** — `npm run typecheck`, `npm run lint`, `npm test` must pass.
 4. **PR with details** — `gh pr create` with a body that explains what changed and why, section by section when several concerns are mixed; include `Closes #<issue>` so the issue closes on merge.

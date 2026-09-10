@@ -1,7 +1,10 @@
 import { shouldPlay, type SoundEvent } from "./soundEvents";
+import { Music, type MusicMode } from "./Music";
 export interface AudioSettings {
   sound: boolean;
   volume: number;
+  music: boolean;
+  musicVolume: number;
 }
 type Wave = OscillatorType;
 interface Tone {
@@ -17,7 +20,15 @@ export class AudioSystem {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private noiseBuffer: AudioBuffer | null = null;
-  private settings: AudioSettings = { sound: true, volume: 0.6 };
+  private settings: AudioSettings = {
+    sound: true,
+    volume: 0.6,
+    music: true,
+    musicVolume: 0.5,
+  };
+  private music: Music | null = null;
+  private musicMode: MusicMode = "off";
+  private elapsed = 0;
   private last: Partial<Record<SoundEvent, number>> = {};
   private unlock = () => {
     if (!this.ctx) {
@@ -28,7 +39,10 @@ export class AudioSystem {
       }
       this.master = this.ctx.createGain();
       this.master.connect(this.ctx.destination);
+      // Music has its own gain path so the SFX toggle/volume and music settings stay independent.
+      this.music = new Music(this.ctx, this.ctx.destination);
       this.applyVolume();
+      this.applyMusic();
     }
     if (this.ctx.state === "suspended") void this.ctx.resume();
   };
@@ -40,6 +54,8 @@ export class AudioSystem {
   dispose() {
     window.removeEventListener("pointerdown", this.unlock);
     window.removeEventListener("keydown", this.unlock);
+    this.music?.dispose();
+    this.music = null;
     void this.ctx?.close();
     this.ctx = null;
     this.master = null;
@@ -47,6 +63,19 @@ export class AudioSystem {
   setSettings(settings: AudioSettings) {
     this.settings = settings;
     this.applyVolume();
+    this.applyMusic();
+  }
+  // Called with every HUD snapshot; music follows game status and builds up with elapsed time.
+  setMusic(mode: MusicMode, elapsed: number) {
+    this.musicMode = mode;
+    this.elapsed = elapsed;
+    this.applyMusic();
+  }
+  private applyMusic() {
+    if (!this.music) return;
+    this.music.setVolume(this.settings.musicVolume);
+    this.music.setElapsed(this.elapsed);
+    this.music.setMode(this.settings.music ? this.musicMode : "off");
   }
   private applyVolume() {
     if (!this.master || !this.ctx) return;

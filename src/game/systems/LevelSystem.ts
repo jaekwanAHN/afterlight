@@ -17,4 +17,5 @@ export function checkLevel(
   state.player.expToNextLevel = expThreshold(state.player.level);
   state.choices = chooseUpgrades(state, random);
   state.status = "levelup";
+  state.sounds.push("levelup");
 }

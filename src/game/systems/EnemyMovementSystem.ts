@@ -29,9 +29,14 @@ export function moveEnemies(
       }
     }
     e.x +=
-      (direction.x * e.moveSpeed + sx * SPAWN_CONFIG.separationStrength) * dt;
+      (direction.x * e.moveSpeed + sx * SPAWN_CONFIG.separationStrength) * dt +
+      e.pushX * dt;
     e.y +=
-      (direction.y * e.moveSpeed + sy * SPAWN_CONFIG.separationStrength) * dt;
+      (direction.y * e.moveSpeed + sy * SPAWN_CONFIG.separationStrength) * dt +
+      e.pushY * dt;
+    const decay = Math.max(0, 1 - SPAWN_CONFIG.knockbackDecay * dt);
+    e.pushX *= decay;
+    e.pushY *= decay;
     e.flash = Math.max(0, e.flash - dt);
     if (
       Math.abs(e.x - state.player.x) > far ||

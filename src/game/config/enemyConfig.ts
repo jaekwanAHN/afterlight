@@ -44,6 +44,7 @@ export const SPAWN_CONFIG = {
   tankAt: 180,
   separationStrength: 45,
   maxSeparationNeighbors: 16,
+  knockbackDecay: 6,
 };
 export function difficultyAt(elapsed: number) {
   return 1 + elapsed / 120;

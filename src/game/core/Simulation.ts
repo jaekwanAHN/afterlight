@@ -9,6 +9,11 @@ import { moveEnemies } from "../systems/EnemyMovementSystem";
 import { playerContacts } from "../systems/CollisionSystem";
 import { fireMagicBolt } from "../weapons/MagicBolt";
 import { updateOrbit } from "../weapons/OrbitWeapon";
+import { throwBoomerangs, updateBoomerangs } from "../weapons/BoomerangWeapon";
+import { callStorm } from "../weapons/StormWeapon";
+import { updateBeams } from "../weapons/BeamWeapon";
+import { fireNova, updateNovas } from "../weapons/NovaWeapon";
+import { dropFlames, updateFlames } from "../weapons/FlameWeapon";
 import {
   updateProjectiles,
   collectDeaths,
@@ -26,6 +31,7 @@ export function simulate(
   state.elapsed = Math.min(GAME_CONFIG.duration, state.elapsed + dt);
   if (state.elapsed >= GAME_CONFIG.duration) {
     state.status = "victory";
+    state.sounds.push("victory");
     return;
   }
   movePlayer(state.player, input, dt);
@@ -36,6 +42,14 @@ export function simulate(
   fireMagicBolt(state, dt);
   updateProjectiles(state, grid, dt);
   updateOrbit(state, grid, dt);
+  throwBoomerangs(state, dt);
+  updateBoomerangs(state, grid, dt);
+  callStorm(state, grid, dt);
+  updateBeams(state, dt);
+  fireNova(state, dt);
+  updateNovas(state, grid, dt);
+  dropFlames(state);
+  updateFlames(state, grid, dt);
   playerContacts(state, grid);
   collectDeaths(state);
   updateEffects(state, dt);

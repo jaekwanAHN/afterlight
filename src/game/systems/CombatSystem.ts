@@ -47,8 +47,10 @@ export function updateProjectiles(
   state.projectiles = state.projectiles.filter((p) => !p.dead);
 }
 export function collectDeaths(state: GameState) {
+  let killed = false;
   for (const enemy of state.enemies) {
     if (!enemy.dead) continue;
+    killed = true;
     state.kills++;
     state.orbs.push({
       id: state.nextId++,
@@ -73,6 +75,7 @@ export function collectDeaths(state: GameState) {
       duration: 0.3,
     });
   }
+  if (killed) state.sounds.push("kill");
   state.enemies = state.enemies.filter((e) => !e.dead);
 }
 export function updateEffects(state: GameState, dt: number) {

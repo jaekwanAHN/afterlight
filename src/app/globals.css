@@ -451,7 +451,9 @@ kbd {
 .loadout {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  max-width: 62vw;
 }
 .weapon-slot {
   width: 49px;
@@ -686,6 +688,15 @@ kbd {
   width: 18px;
   height: 18px;
 }
+.settings-modal input[type="range"] {
+  width: 46%;
+  height: 4px;
+  cursor: pointer;
+}
+.settings-modal input[type="range"]:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
 .settings-modal .primary {
   width: 100%;
   margin-top: 15px;
@@ -915,6 +926,9 @@ kbd {
     bottom: 18px;
     left: 15px;
     right: 15px;
+  }
+  .loadout {
+    gap: 5px;
   }
   .weapon-slot {
     height: 40px;

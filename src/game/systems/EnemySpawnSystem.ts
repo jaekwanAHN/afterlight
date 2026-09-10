@@ -34,6 +34,9 @@ export function makeEnemy(
     hp: maxHp,
     flash: 0,
     orbitHitAt: 0,
+    beamHitAt: 0,
+    pushX: 0,
+    pushY: 0,
     dead: false,
   };
 }

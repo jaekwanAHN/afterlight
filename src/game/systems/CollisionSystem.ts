@@ -10,8 +10,12 @@ export function playerContacts(state: GameState, grid: SpatialGrid<Enemy>) {
     if (!e.dead && circlesOverlap(p, e)) {
       p.hp = Math.max(0, p.hp - e.damage);
       p.invincible = GAME_CONFIG.player.invincibleDuration;
+      state.sounds.push("hurt");
       break;
     }
   }
-  if (p.hp <= 0) state.status = "gameover";
+  if (p.hp <= 0) {
+    state.status = "gameover";
+    state.sounds.push("gameover");
+  }
 }

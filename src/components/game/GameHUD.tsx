@@ -82,6 +82,56 @@ export function GameHUD({
           >
             ◌<small>{ui.orbitLevel || "—"}</small>
           </div>
+          <div
+            className={`weapon-slot ${ui.boomerangLevel ? "" : "locked"}`}
+            title={
+              ui.boomerangLevel
+                ? `Returning Edge · Lv.${ui.boomerangLevel}`
+                : "레벨업 시 부메랑 획득 가능"
+            }
+          >
+            ↺<small>{ui.boomerangLevel || "—"}</small>
+          </div>
+          <div
+            className={`weapon-slot ${ui.stormLevel ? "" : "locked"}`}
+            title={
+              ui.stormLevel
+                ? `Skyfall · Lv.${ui.stormLevel}`
+                : "레벨업 시 낙뢰 획득 가능"
+            }
+          >
+            ☄<small>{ui.stormLevel || "—"}</small>
+          </div>
+          <div
+            className={`weapon-slot ${ui.beamLevel ? "" : "locked"}`}
+            title={
+              ui.beamLevel
+                ? `Dawn Lance · Lv.${ui.beamLevel}`
+                : "레벨업 시 광선 획득 가능"
+            }
+          >
+            ╱<small>{ui.beamLevel || "—"}</small>
+          </div>
+          <div
+            className={`weapon-slot ${ui.novaLevel ? "" : "locked"}`}
+            title={
+              ui.novaLevel
+                ? `Shockwave · Lv.${ui.novaLevel}`
+                : "레벨업 시 충격파 획득 가능"
+            }
+          >
+            ◉<small>{ui.novaLevel || "—"}</small>
+          </div>
+          <div
+            className={`weapon-slot ${ui.flameLevel ? "" : "locked"}`}
+            title={
+              ui.flameLevel
+                ? `Ember Trail · Lv.${ui.flameLevel}`
+                : "레벨업 시 화염 지대 획득 가능"
+            }
+          >
+            ♨<small>{ui.flameLevel || "—"}</small>
+          </div>
           <span>
             AUTO ATTACK
             <br />

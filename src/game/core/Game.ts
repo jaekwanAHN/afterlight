@@ -6,12 +6,22 @@ import type { Vec2 } from "../utils/math";
 import { GAME_CONFIG } from "../config/gameConfig";
 import { applyUpgrade } from "../upgrades/upgrades";
 import { checkLevel } from "../systems/LevelSystem";
+import type { SoundEvent } from "../audio/soundEvents";
 export class Game {
   state = createState();
   private grid = new SpatialGrid<Enemy>(GAME_CONFIG.gridSize);
   private hudTimer = 0;
   private accumulator = 0;
+  private onSound: (e: SoundEvent) => void = () => {};
+  private beamHum = false;
   constructor(private emit: (s: Snapshot) => void) {}
+  setSoundSink(sink: (e: SoundEvent) => void) {
+    this.onSound = sink;
+  }
+  private flushSounds() {
+    for (const e of this.state.sounds) this.onSound(e);
+    this.state.sounds.length = 0;
+  }
   private reset() {
     const viewport = this.state.viewport;
     this.state = createState();
@@ -55,10 +65,12 @@ export class Game {
       simulate(this.state, this.grid, input, GAME_CONFIG.fixedStep);
       if (this.state.status !== "playing") {
         this.accumulator = 0;
+        this.flushSounds();
         this.publish();
         return;
       }
     }
+    this.flushSounds();
     this.hudTimer += delta;
     if (this.hudTimer + 1e-9 >= GAME_CONFIG.hudInterval) {
       this.hudTimer = 0;
@@ -69,10 +81,20 @@ export class Game {
     if (applyUpgrade(this.state, id)) {
       this.accumulator = 0;
       checkLevel(this.state);
+      this.flushSounds();
       this.publish();
     }
   }
+  // Beam audio follows game status: it hums only while the beam is unlocked and the game runs.
+  private syncBeamHum() {
+    const active =
+      this.state.status === "playing" && this.state.weapons.beam.level > 0;
+    if (active === this.beamHum) return;
+    this.beamHum = active;
+    this.onSound(active ? "beamOn" : "beamOff");
+  }
   publish() {
+    this.syncBeamHum();
     this.emit(snapshot(this.state));
   }
 }

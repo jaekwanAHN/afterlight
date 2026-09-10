@@ -11,12 +11,19 @@ import { GameHUD } from "./GameHUD";
 import { LevelUpModal } from "./LevelUpModal";
 import { GameOverModal } from "./GameOverModal";
 import { PauseModal } from "./PauseModal";
-import { DEFAULT_SETTINGS, SettingsModal } from "./SettingsModal";
+import { SettingsModal } from "./SettingsModal";
+import { AudioSystem } from "@/game/audio/AudioSystem";
+import {
+  DEFAULT_SETTINGS,
+  readSettings,
+  saveSettings,
+} from "@/game/core/settings";
 export function GameCanvas() {
   const canvas = useRef<HTMLCanvasElement>(null),
     engine = useRef<Game | null>(null),
     inputRef = useRef<InputSystem | null>(null),
-    rendererRef = useRef<Renderer | null>(null);
+    rendererRef = useRef<Renderer | null>(null),
+    audioRef = useRef<AudioSystem | null>(null);
   const [ui, setUi] = useState(() => snapshot(createState()));
   const [records, setRecords] = useState(EMPTY_RECORDS);
   const [ready, setReady] = useState(false);
@@ -59,9 +66,16 @@ export function GameCanvas() {
       },
       () => game.pause(),
     );
+    const audio = new AudioSystem();
+    audio.attach();
+    game.setSoundSink(audio.play);
+    const stored = readSettings();
+    renderer.setSettings(stored);
+    audio.setSettings(stored);
     engine.current = game;
     inputRef.current = input;
     rendererRef.current = renderer;
+    audioRef.current = audio;
     const resize = () => {
       const rect = canvas.current!.getBoundingClientRect();
       game.state.viewport = { width: rect.width, height: rect.height };
@@ -79,6 +93,7 @@ export function GameCanvas() {
     loop.start();
     queueMicrotask(() => {
       setRecords(best);
+      setSettings(stored);
       setReady(true);
     });
     return () => {
@@ -89,6 +104,8 @@ export function GameCanvas() {
       engine.current = null;
       inputRef.current = null;
       rendererRef.current = null;
+      audio.dispose();
+      audioRef.current = null;
     };
   }, []);
   const start = () => {
@@ -153,7 +170,12 @@ export function GameCanvas() {
           settings={settings}
           onChange={(value) => {
             setSettings(value);
+            saveSettings(value);
             rendererRef.current?.setSettings(value);
+            audioRef.current?.setSettings(value);
+            // Preview the new level so the slider is audible while dragging.
+            if (value.sound && value.volume !== settings.volume)
+              audioRef.current?.play("select");
           }}
           onClose={() => {
             settingsOpenRef.current = false;

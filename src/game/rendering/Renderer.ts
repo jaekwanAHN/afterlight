@@ -8,6 +8,7 @@ import { WEAPON_CONFIG } from "../config/weaponConfig";
 import { drawScenery } from "./Scenery";
 import { drawEnemy, drawItem, drawPlayer } from "./EntityRenderer";
 import { circle, diamond, ring } from "./primitives";
+import { JOYSTICK, type Joystick } from "../systems/InputSystem";
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private width = 1280;
@@ -120,7 +121,7 @@ export class Renderer {
     this.canvas.height = Math.round(height * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  draw(real: GameState) {
+  draw(real: GameState, stick: Joystick | null = null) {
     const c = this.ctx,
       idle = real.status === "idle",
       state = idle ? this.preview : real,
@@ -292,5 +293,21 @@ export class Renderer {
     shade.addColorStop(1, "#050b10b0");
     c.fillStyle = shade;
     c.fillRect(0, 0, this.width, this.height);
+    if (stick && !idle) this.drawJoystick(stick);
+  }
+  // Screen-space overlay for touch play; clamps the knob to the ring's edge.
+  private drawJoystick(stick: Joystick) {
+    const c = this.ctx,
+      rect = this.canvas.getBoundingClientRect(),
+      ox = stick.originX - rect.left,
+      oy = stick.originY - rect.top;
+    const dx = stick.x - stick.originX,
+      dy = stick.y - stick.originY,
+      d = Math.hypot(dx, dy),
+      k = d > JOYSTICK.radius ? JOYSTICK.radius / d : 1;
+    circle(c, ox, oy, JOYSTICK.radius, "#c1f78c12");
+    ring(c, ox, oy, JOYSTICK.radius, "#c1f78c66", 2);
+    circle(c, ox + dx * k, oy + dy * k, 22, "#c1f78c55");
+    circle(c, ox + dx * k, oy + dy * k, 14, "#dfffb8");
   }
 }

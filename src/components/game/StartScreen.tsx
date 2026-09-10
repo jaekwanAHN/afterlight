@@ -83,7 +83,8 @@ export function StartScreen({
             </div>
           </div>
           <span>
-            MOVE TO SURVIVE<small>WASD 또는 방향키 · 공격은 자동</small>
+            MOVE TO SURVIVE
+            <small>WASD · 방향키 · 터치 드래그 · 공격은 자동</small>
           </span>
         </div>
         <div className="footer-hint">

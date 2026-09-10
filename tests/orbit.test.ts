@@ -1,0 +1,34 @@
+import { expect, it } from "vitest";
+import { createState } from "../src/game/core/GameState";
+import { makeEnemy } from "../src/game/systems/EnemySpawnSystem";
+import { UPGRADES } from "../src/game/upgrades/upgrades";
+import { orbitPositions, updateOrbit } from "../src/game/weapons/OrbitWeapon";
+import { SpatialGrid } from "../src/game/utils/SpatialGrid";
+it("unlocks and upgrades all orbit attributes", () => {
+  const s = createState();
+  expect(orbitPositions(s)).toHaveLength(0);
+  const upgrade = UPGRADES.find((u) => u.id === "orbit")!;
+  upgrade.apply(s);
+  expect(orbitPositions(s)).toHaveLength(1);
+  const first = { ...s.weapons.orbit };
+  upgrade.apply(s);
+  expect(s.weapons.orbit.count).toBe(2);
+  expect(s.weapons.orbit.damage).toBeGreaterThan(first.damage);
+  expect(s.weapons.orbit.speed).toBeGreaterThan(first.speed);
+  expect(s.weapons.orbit.radius).toBeGreaterThan(first.radius);
+});
+it("limits repeated orbit damage during continuous contact", () => {
+  const s = createState();
+  s.weapons.orbit.level = 1;
+  const e = makeEnemy(s, "tank");
+  e.x = 82;
+  e.y = 0;
+  const grid = new SpatialGrid<typeof e>();
+  grid.rebuild([e]);
+  updateOrbit(s, grid, 0);
+  updateOrbit(s, grid, 0);
+  expect(e.hp).toBe(48);
+  s.elapsed = 0.36;
+  updateOrbit(s, grid, 0);
+  expect(e.hp).toBe(36);
+});

@@ -7,3 +7,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Workflow
+
+Every code change, no matter how small, follows this sequence:
+
+1. **Issue first** — `gh issue create` describing the goal and scope before touching code. Ask the user only when the scope is genuinely ambiguous.
+2. **Branch per issue** — branch off up-to-date `main` as `<type>/<short-slug>` (`feat/`, `fix/`, `refactor/`, `chore/`). Never commit directly to `main`.
+3. **Verify before commit** — `npm run typecheck`, `npm run lint`, `npm test` must pass.
+4. **PR with details** — `gh pr create` with a body that explains what changed and why, section by section when several concerns are mixed; include `Closes #<issue>` so the issue closes on merge.
+5. **Merge** — `gh pr merge --merge --delete-branch`, then `git checkout main && git pull`.
+
+Commit messages: conventional prefix (`feat:`, `fix:`, …), imperative summary, body explaining the reasoning when it's not obvious from the diff.

@@ -1,4 +1,4 @@
-export type EffectKind = "burst" | "strike";
+export type EffectKind = "burst" | "strike" | "blast";
 export interface Effect {
   kind?: EffectKind;
   x: number;

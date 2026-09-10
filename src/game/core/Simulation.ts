@@ -21,6 +21,7 @@ import {
 } from "../systems/CombatSystem";
 import { collectExperience, compactOrbs } from "../systems/ExperienceSystem";
 import { checkLevel } from "../systems/LevelSystem";
+import { collectItems, spawnItems } from "../systems/ItemSystem";
 // Systems mutate engine-owned entities only. React receives a separate small snapshot.
 export function simulate(
   state: GameState,
@@ -36,6 +37,7 @@ export function simulate(
   }
   movePlayer(state.player, input, dt);
   spawnEnemies(state, dt);
+  spawnItems(state, dt);
   grid.rebuild(state.enemies);
   moveEnemies(state, grid, dt);
   grid.rebuild(state.enemies);
@@ -51,6 +53,7 @@ export function simulate(
   dropFlames(state);
   updateFlames(state, grid, dt);
   playerContacts(state, grid);
+  collectItems(state, dt);
   collectDeaths(state);
   updateEffects(state, dt);
   if (state.status === "playing") {

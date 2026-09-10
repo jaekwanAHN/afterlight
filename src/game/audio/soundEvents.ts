@@ -12,7 +12,9 @@ export type SoundEvent =
   | "nova"
   | "flame"
   | "beamOn"
-  | "beamOff";
+  | "beamOff"
+  | "magnet"
+  | "bomb";
 // Minimum gap between repeats (seconds). Kills and pickups can happen dozens of times per frame.
 export const SOUND_THROTTLE: Record<SoundEvent, number> = {
   bolt: 0.05,
@@ -29,6 +31,8 @@ export const SOUND_THROTTLE: Record<SoundEvent, number> = {
   flame: 0.6,
   beamOn: 0,
   beamOff: 0,
+  magnet: 0.5,
+  bomb: 0.5,
 };
 export function shouldPlay(
   event: SoundEvent,

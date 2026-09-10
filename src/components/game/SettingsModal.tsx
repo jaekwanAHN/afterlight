@@ -64,7 +64,7 @@ export function SettingsModal({
         <p>
           WASD / 방향키로 이동 · ESC 일시정지
           <br />
-          PC 키보드 플레이를 권장합니다.
+          모바일은 화면을 누른 채 끌어서 이동합니다.
         </p>
         <button autoFocus className="primary" onClick={onClose}>
           완료

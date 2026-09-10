@@ -85,10 +85,10 @@ export function GameCanvas() {
     observer.observe(canvas.current);
     window.addEventListener("resize", resize);
     resize();
-    input.attach();
+    input.attach(canvas.current);
     const loop = new GameLoop(
       (dt) => game.update(dt, input.direction()),
-      () => renderer.draw(game.state),
+      () => renderer.draw(game.state, input.joystick()),
     );
     loop.start();
     queueMicrotask(() => {
@@ -122,7 +122,7 @@ export function GameCanvas() {
       <canvas
         ref={canvas}
         className="game-canvas"
-        aria-label="Afterlight 게임 필드. WASD 또는 방향키로 이동, ESC로 일시정지."
+        aria-label="Afterlight 게임 필드. WASD 또는 방향키로 이동, 터치는 누른 채 끌기, ESC로 일시정지."
       />
       {error ? (
         <div className="overlay">

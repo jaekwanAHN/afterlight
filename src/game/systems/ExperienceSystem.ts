@@ -2,6 +2,7 @@ import type { GameState } from "../core/GameState";
 import { distanceSq, normalize } from "../utils/math";
 export function collectExperience(state: GameState, dt: number) {
   const p = state.player;
+  let collected = false;
   for (const orb of state.orbs) {
     const d = distanceSq(orb, p);
     if (d <= p.pickupRadius ** 2) orb.attracted = true;
@@ -10,12 +11,14 @@ export function collectExperience(state: GameState, dt: number) {
     if (d <= (p.radius + orb.radius + step) ** 2) {
       p.exp += orb.value;
       orb.dead = true;
+      collected = true;
     } else {
       const direction = normalize(p.x - orb.x, p.y - orb.y);
       orb.x += direction.x * step;
       orb.y += direction.y * step;
     }
   }
+  if (collected) state.sounds.push("pickup");
   state.orbs = state.orbs.filter((o) => !o.dead);
 }
 // Merge distant drops only when the field is crowded; no experience value is discarded.

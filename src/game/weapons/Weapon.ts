@@ -16,10 +16,89 @@ export interface WeaponState {
     distance: number;
     angle: number;
   };
+  boomerang: {
+    level: number;
+    damage: number;
+    cooldown: number;
+    speed: number;
+    count: number;
+    timer: number;
+  };
+  storm: {
+    level: number;
+    damage: number;
+    cooldown: number;
+    radius: number;
+    timer: number;
+  };
+  beam: {
+    level: number;
+    damage: number;
+    width: number;
+    speed: number;
+    count: number;
+    angle: number;
+  };
+  nova: {
+    level: number;
+    damage: number;
+    cooldown: number;
+    maxRadius: number;
+    knockback: number;
+    timer: number;
+  };
+  flame: {
+    level: number;
+    damage: number;
+    radius: number;
+    duration: number;
+    lastX: number;
+    lastY: number;
+  };
 }
 export function createWeapons(): WeaponState {
+  const { boomerang, storm, beam, nova, flame } = WEAPON_CONFIG;
   return {
     bolt: { ...WEAPON_CONFIG.bolt, timer: 0 },
     orbit: { ...WEAPON_CONFIG.orbit, level: 0, angle: 0 },
+    boomerang: {
+      level: 0,
+      damage: boomerang.damage,
+      cooldown: boomerang.cooldown,
+      speed: boomerang.speed,
+      count: boomerang.count,
+      timer: 0,
+    },
+    storm: {
+      level: 0,
+      damage: storm.damage,
+      cooldown: storm.cooldown,
+      radius: storm.radius,
+      timer: 0,
+    },
+    beam: {
+      level: 0,
+      damage: beam.damage,
+      width: beam.width,
+      speed: beam.speed,
+      count: beam.count,
+      angle: 0,
+    },
+    nova: {
+      level: 0,
+      damage: nova.damage,
+      cooldown: nova.cooldown,
+      maxRadius: nova.maxRadius,
+      knockback: nova.knockback,
+      timer: 0,
+    },
+    flame: {
+      level: 0,
+      damage: flame.damage,
+      radius: flame.radius,
+      duration: flame.duration,
+      lastX: 0,
+      lastY: 0,
+    },
   };
 }

@@ -18,4 +18,48 @@ export const WEAPON_CONFIG = {
     distance: 82,
     hitInterval: 0.35,
   },
+  boomerang: {
+    damage: 18,
+    cooldown: 1.6,
+    speed: 380,
+    count: 1,
+    radius: 12,
+    // Constant deceleration reverses the throw, so flight range is speed² / (2 · returnAccel).
+    returnAccel: 300,
+    range: 900,
+    spread: 0.35,
+    lifetime: 5,
+    spin: 14,
+  },
+  storm: {
+    damage: 30,
+    cooldown: 2.4,
+    radius: 90,
+    flashDuration: 0.45,
+  },
+  beam: {
+    damage: 6,
+    width: 14,
+    speed: 0.9,
+    count: 1,
+    length: 720,
+    hitInterval: 0.2,
+  },
+  nova: {
+    damage: 24,
+    cooldown: 3.2,
+    maxRadius: 220,
+    knockback: 420,
+    expandSpeed: 520,
+    thickness: 18,
+  },
+  flame: {
+    damage: 5,
+    radius: 34,
+    duration: 2.8,
+    // A patch drops only after the player has walked this far, so standing still never stacks flames.
+    dropDistance: 42,
+    tickInterval: 0.3,
+    maxPatches: 80,
+  },
 };

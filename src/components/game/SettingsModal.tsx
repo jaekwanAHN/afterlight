@@ -1,9 +1,5 @@
 import { ModalFrame } from "./ModalFrame";
-export interface Settings {
-  effects: boolean;
-  showGrid: boolean;
-}
-export const DEFAULT_SETTINGS: Settings = { effects: true, showGrid: true };
+import type { Settings } from "@/game/core/settings";
 export function SettingsModal({
   settings,
   onChange,
@@ -40,6 +36,28 @@ export function SettingsModal({
             checked={settings.showGrid}
             onChange={(e) =>
               onChange({ ...settings, showGrid: e.target.checked })
+            }
+          />
+        </label>
+        <label>
+          효과음
+          <input
+            type="checkbox"
+            checked={settings.sound}
+            onChange={(e) => onChange({ ...settings, sound: e.target.checked })}
+          />
+        </label>
+        <label>
+          볼륨
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(settings.volume * 100)}
+            disabled={!settings.sound}
+            aria-valuetext={`${Math.round(settings.volume * 100)}%`}
+            onChange={(e) =>
+              onChange({ ...settings, volume: Number(e.target.value) / 100 })
             }
           />
         </label>

@@ -1,22 +1,14 @@
 import type { GameState } from "../core/GameState";
 import { WEAPON_CONFIG } from "../config/weaponConfig";
-import { distanceSq } from "../utils/math";
+import { nearestEnemy } from "./targeting";
 export function fireMagicBolt(state: GameState, dt: number) {
   const w = state.weapons.bolt;
   w.timer = Math.max(0, w.timer - dt);
   if (w.timer > 0) return;
-  let nearest = null;
-  let best = WEAPON_CONFIG.bolt.range ** 2;
-  for (const enemy of state.enemies) {
-    if (enemy.dead) continue;
-    const d = distanceSq(enemy, state.player);
-    if (d < best) {
-      best = d;
-      nearest = enemy;
-    }
-  }
+  const nearest = nearestEnemy(state, WEAPON_CONFIG.bolt.range);
   if (!nearest) return;
   w.timer = w.cooldown;
+  state.sounds.push("bolt");
   const angle = Math.atan2(
     nearest.y - state.player.y,
     nearest.x - state.player.x,

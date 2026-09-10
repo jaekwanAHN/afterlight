@@ -3,6 +3,8 @@ import { createState } from "../core/GameState";
 import { GAME_CONFIG } from "../config/gameConfig";
 import { ENEMY_CONFIG } from "../config/enemyConfig";
 import { orbitPositions } from "../weapons/OrbitWeapon";
+import { beamSegments } from "../weapons/BeamWeapon";
+import { WEAPON_CONFIG } from "../config/weaponConfig";
 import { drawScenery } from "./Scenery";
 import { drawEnemy, drawPlayer } from "./EntityRenderer";
 import { circle, diamond, ring } from "./primitives";
@@ -42,6 +44,9 @@ export class Renderer {
         hp: cfg.maxHp,
         flash: 0,
         orbitHitAt: 0,
+        beamHitAt: 0,
+        pushX: 0,
+        pushY: 0,
         dead: false,
       };
     });
@@ -56,6 +61,32 @@ export class Renderer {
     }));
     this.preview.weapons.orbit.level = 1;
     this.preview.weapons.orbit.count = 2;
+    this.preview.weapons.boomerang.level = 1;
+  }
+  // Idle scene keeps one boomerang looping around the player without running the simulation.
+  private previewBoomerang(time: number) {
+    const t = (time * 0.45) % 1;
+    const dist = Math.sin(t * Math.PI) * 200;
+    const angle = -0.4 + t * 0.9;
+    this.preview.boomerangs = [
+      {
+        id: 0,
+        x: Math.cos(angle) * dist,
+        y: Math.sin(angle) * dist,
+        vx: 0,
+        vy: 0,
+        dirX: 1,
+        dirY: 0,
+        radius: 12,
+        damage: 0,
+        speed: 0,
+        spin: time * 14,
+        lifetime: 1,
+        returning: t > 0.5,
+        hit: new Set(),
+        dead: false,
+      },
+    ];
   }
   setSettings(settings: { effects: boolean; showGrid: boolean }) {
     this.settings = settings;
@@ -74,7 +105,10 @@ export class Renderer {
       state = idle ? this.preview : real,
       p = state.player;
     const time = idle ? performance.now() / 1000 : state.elapsed;
-    if (idle) this.preview.weapons.orbit.angle = time * 0.3;
+    if (idle) {
+      this.preview.weapons.orbit.angle = time * 0.3;
+      this.previewBoomerang(time);
+    }
     c.fillStyle = "#0c191b";
     c.fillRect(0, 0, this.width, this.height);
     const centerX = idle ? this.width * 0.74 : this.width / 2,
@@ -94,6 +128,16 @@ export class Renderer {
       diamond(c, orb.x, orb.y, orb.radius + 3, "#b9f28418");
       diamond(c, orb.x, orb.y, orb.radius, "#b5e985");
     }
+    for (const f of state.flames) {
+      if (!visible(f.x, f.y)) continue;
+      const life = f.life / f.duration;
+      const flicker = 0.85 + Math.sin(time * 17 + f.seed) * 0.15;
+      c.globalAlpha = Math.min(1, life * 1.6);
+      circle(c, f.x, f.y, f.radius * flicker, "#ff6a2a2e");
+      circle(c, f.x, f.y, f.radius * 0.62 * flicker, "#ff9a3c55");
+      circle(c, f.x, f.y, f.radius * 0.3 * flicker, "#ffe08a99");
+    }
+    c.globalAlpha = 1;
     if (state.weapons.orbit.level) {
       ring(c, p.x, p.y, state.weapons.orbit.distance, "#bbff7020");
       for (const orb of orbitPositions(state)) {
@@ -115,9 +159,70 @@ export class Renderer {
       circle(c, bolt.x, bolt.y, bolt.radius + 4, "#98ffe719");
       circle(c, bolt.x, bolt.y, bolt.radius, "#dcfff6");
     }
+    for (const b of state.boomerangs) {
+      if (!visible(b.x, b.y)) continue;
+      circle(c, b.x, b.y, b.radius + 6, "#ffd9a014");
+      c.save();
+      c.translate(b.x, b.y);
+      c.rotate(b.spin);
+      c.strokeStyle = "#ffcf8a";
+      c.lineWidth = 3.5;
+      c.lineCap = "round";
+      c.beginPath();
+      c.arc(0, 0, b.radius * 0.8, Math.PI * 0.15, Math.PI * 0.85);
+      c.stroke();
+      c.beginPath();
+      c.arc(0, 0, b.radius * 0.8, Math.PI * 1.15, Math.PI * 1.85);
+      c.stroke();
+      c.restore();
+    }
+    if (state.weapons.beam.level) {
+      const w = state.weapons.beam;
+      const pulse = 0.9 + Math.sin(time * 18) * 0.1;
+      c.lineCap = "round";
+      for (const end of beamSegments(state)) {
+        c.strokeStyle = "#ff9d5c22";
+        c.lineWidth = w.width * 2.6 * pulse;
+        c.beginPath();
+        c.moveTo(p.x, p.y);
+        c.lineTo(end.x, end.y);
+        c.stroke();
+        c.strokeStyle = "#ffb36e88";
+        c.lineWidth = w.width * pulse;
+        c.stroke();
+        c.strokeStyle = "#fff1d6";
+        c.lineWidth = Math.max(1.5, w.width * 0.28);
+        c.stroke();
+      }
+      circle(c, p.x, p.y, 9 + Math.sin(time * 18) * 2, "#ffd9a6");
+    }
+    for (const n of state.novas) {
+      const life = 1 - n.radius / n.maxRadius;
+      c.globalAlpha = 0.25 + life * 0.75;
+      ring(c, n.x, n.y, n.radius, "#9fd8ff", WEAPON_CONFIG.nova.thickness);
+      c.globalAlpha = 0.5 + life * 0.5;
+      ring(c, n.x, n.y, n.radius, "#eaf7ff", 3);
+    }
+    c.globalAlpha = 1;
+    for (const e of state.effects) {
+      if (e.kind !== "strike" || !visible(e.x, e.y, 120)) continue;
+      const life = e.life / e.duration;
+      c.globalAlpha = life;
+      circle(c, e.x, e.y, e.radius * (1.15 - life * 0.15), "#ffd16628");
+      ring(c, e.x, e.y, e.radius, e.color, 2);
+      c.strokeStyle = "#fff4cc";
+      c.lineWidth = 4 * life;
+      c.beginPath();
+      c.moveTo(e.x + 14, e.y - e.radius * 2.2);
+      c.lineTo(e.x - 6, e.y - e.radius * 0.6);
+      c.lineTo(e.x + 8, e.y - e.radius * 0.5);
+      c.lineTo(e.x, e.y);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
     if (this.settings.effects)
       for (const e of state.effects) {
-        if (!visible(e.x, e.y, 80)) continue;
+        if (e.kind === "strike" || !visible(e.x, e.y, 80)) continue;
         const life = e.life / e.duration;
         c.globalAlpha = life;
         ring(c, e.x, e.y, e.radius * (2 - life), e.color, 2);

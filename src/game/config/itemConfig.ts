@@ -1,9 +1,9 @@
 export const ITEM_CONFIG = {
-  // Pickups are strong, so they are deliberately rare.
-  firstAt: 30,
-  minInterval: 50,
-  maxInterval: 80,
-  maxAlive: 2,
+  // Roughly two pickups per minute: strong effects, but frequent enough to plan around.
+  firstAt: 15,
+  minInterval: 20,
+  maxInterval: 40,
+  maxAlive: 3,
   lifetime: 45,
   blinkFor: 6,
   radius: 13,

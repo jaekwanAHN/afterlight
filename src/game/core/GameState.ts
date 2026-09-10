@@ -3,6 +3,8 @@ import type { Projectile } from "../entities/Projectile";
 import type { Boomerang } from "../entities/Boomerang";
 import type { Nova } from "../entities/Nova";
 import type { FlamePatch } from "../entities/FlamePatch";
+import type { Item } from "../entities/Item";
+import { ITEM_CONFIG } from "../config/itemConfig";
 import type { ExperienceOrb } from "../entities/ExperienceOrb";
 import type { Effect } from "../entities/Effect";
 import { createWeapons, type WeaponState } from "../weapons/Weapon";
@@ -19,6 +21,7 @@ export interface GameState {
   boomerangs: Boomerang[];
   novas: Nova[];
   flames: FlamePatch[];
+  items: Item[];
   orbs: ExperienceOrb[];
   effects: Effect[];
   // Systems queue sounds here; Game drains the queue after each update so simulation stays pure.
@@ -28,6 +31,7 @@ export interface GameState {
   choices: UpgradeChoice[];
   nextId: number;
   spawnTimer: number;
+  itemTimer: number;
   elapsed: number;
   kills: number;
   viewport: { width: number; height: number };
@@ -41,6 +45,7 @@ export function createState(): GameState {
     boomerangs: [],
     novas: [],
     flames: [],
+    items: [],
     orbs: [],
     effects: [],
     sounds: [],
@@ -49,6 +54,7 @@ export function createState(): GameState {
     choices: [],
     nextId: 1,
     spawnTimer: 0,
+    itemTimer: ITEM_CONFIG.firstAt,
     elapsed: 0,
     kills: 0,
     viewport: { width: 1280, height: 720 },

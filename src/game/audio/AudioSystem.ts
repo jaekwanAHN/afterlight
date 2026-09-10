@@ -214,6 +214,20 @@ const RECIPES: Record<
     ],
     noise: { duration: 0.2, gain: 0.1, cutoff: 1800 },
   },
+  magnet: {
+    tones: [440, 660, 880, 1320, 1760].map((f, i) => ({
+      wave: "sine" as Wave,
+      from: f,
+      to: f * 1.5,
+      duration: 0.22,
+      gain: 0.14,
+      delay: i * 0.05,
+    })),
+  },
+  bomb: {
+    tones: [{ wave: "sine", from: 160, to: 30, duration: 0.9, gain: 0.7 }],
+    noise: { duration: 0.8, gain: 0.6, cutoff: 2600 },
+  },
   beamOn: { tones: [] },
   beamOff: { tones: [] },
   victory: {

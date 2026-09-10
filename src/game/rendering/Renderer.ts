@@ -6,7 +6,7 @@ import { orbitPositions } from "../weapons/OrbitWeapon";
 import { beamSegments } from "../weapons/BeamWeapon";
 import { WEAPON_CONFIG } from "../config/weaponConfig";
 import { drawScenery } from "./Scenery";
-import { drawEnemy, drawPlayer } from "./EntityRenderer";
+import { drawEnemy, drawItem, drawPlayer } from "./EntityRenderer";
 import { circle, diamond, ring } from "./primitives";
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -62,6 +62,26 @@ export class Renderer {
     this.preview.weapons.orbit.level = 1;
     this.preview.weapons.orbit.count = 2;
     this.preview.weapons.boomerang.level = 1;
+    this.preview.items = [
+      {
+        id: 1,
+        kind: "magnet",
+        x: -60,
+        y: 250,
+        radius: 13,
+        life: 99,
+        dead: false,
+      },
+      {
+        id: 2,
+        kind: "bomb",
+        x: 300,
+        y: -20,
+        radius: 13,
+        life: 99,
+        dead: false,
+      },
+    ];
   }
   // Idle scene keeps one boomerang looping around the player without running the simulation.
   private previewBoomerang(time: number) {
@@ -128,6 +148,8 @@ export class Renderer {
       diamond(c, orb.x, orb.y, orb.radius + 3, "#b9f28418");
       diamond(c, orb.x, orb.y, orb.radius, "#b5e985");
     }
+    for (const item of state.items)
+      if (visible(item.x, item.y)) drawItem(c, item, time);
     for (const f of state.flames) {
       if (!visible(f.x, f.y)) continue;
       const life = f.life / f.duration;
@@ -205,6 +227,23 @@ export class Renderer {
     }
     c.globalAlpha = 1;
     for (const e of state.effects) {
+      if (e.kind === "blast") {
+        const life = e.life / e.duration;
+        const grow = 1 - life;
+        c.globalAlpha = life * 0.55;
+        circle(c, e.x, e.y, e.radius * 1.3, "#fff3dc");
+        c.globalAlpha = life;
+        ring(
+          c,
+          e.x,
+          e.y,
+          e.radius * (0.2 + grow * 1.2),
+          e.color,
+          14 * life + 2,
+        );
+        ring(c, e.x, e.y, e.radius * (0.1 + grow * 0.9), "#ffffff", 3);
+        continue;
+      }
       if (e.kind !== "strike" || !visible(e.x, e.y, 120)) continue;
       const life = e.life / e.duration;
       c.globalAlpha = life;

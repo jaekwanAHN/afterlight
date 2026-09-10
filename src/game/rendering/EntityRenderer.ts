@@ -1,5 +1,7 @@
 import type { Enemy } from "../entities/Enemy";
 import type { Player } from "../entities/Player";
+import type { Item } from "../entities/Item";
+import { ITEM_CONFIG } from "../config/itemConfig";
 import { ENEMY_CONFIG } from "../config/enemyConfig";
 import { circle, diamond, ring } from "./primitives";
 export function drawEnemy(
@@ -61,6 +63,50 @@ export function drawEnemy(
     c.fillRect(-e.radius, -e.radius - 10, e.radius * 2, 3);
     c.fillStyle = color;
     c.fillRect(-e.radius, -e.radius - 10, (e.radius * 2 * e.hp) / e.maxHp, 3);
+  }
+  c.restore();
+}
+export function drawItem(
+  c: CanvasRenderingContext2D,
+  item: Item,
+  time: number,
+) {
+  // Blink during the last seconds so the player knows it is about to vanish.
+  if (item.life < ITEM_CONFIG.blinkFor && Math.floor(time * 6) % 2) return;
+  const bob = Math.sin(time * 3 + item.id) * 3;
+  const glow = item.kind === "magnet" ? "#7fd4ff" : "#ff8a5c";
+  c.save();
+  c.translate(item.x, item.y + bob);
+  circle(c, 0, 6 - bob, item.radius + 1, "#040b1099");
+  ring(c, 0, 0, item.radius + 8 + Math.sin(time * 4) * 2, glow + "55", 2);
+  circle(c, 0, 0, item.radius + 4, glow + "22");
+  if (item.kind === "magnet") {
+    c.strokeStyle = "#5fb8ff";
+    c.lineWidth = 6;
+    c.lineCap = "butt";
+    c.beginPath();
+    c.arc(0, -2, 8, Math.PI, 0);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(-8, -2);
+    c.lineTo(-8, 8);
+    c.moveTo(8, -2);
+    c.lineTo(8, 8);
+    c.stroke();
+    c.fillStyle = "#e9f6ff";
+    c.fillRect(-11, 5, 6, 4);
+    c.fillRect(5, 5, 6, 4);
+  } else {
+    circle(c, 0, 2, 10, "#2a1f2b");
+    ring(c, 0, 2, 10, "#ff9d6b", 1.5);
+    circle(c, -3, -1, 3, "#5a4757");
+    c.strokeStyle = "#d9c7a0";
+    c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(4, -6);
+    c.quadraticCurveTo(9, -12, 13, -10);
+    c.stroke();
+    circle(c, 13, -10, 2.5 + Math.sin(time * 20) * 1, "#ffe27a");
   }
   c.restore();
 }

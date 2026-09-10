@@ -13,7 +13,6 @@ export class Game {
   private hudTimer = 0;
   private accumulator = 0;
   private onSound: (e: SoundEvent) => void = () => {};
-  private beamHum = false;
   constructor(private emit: (s: Snapshot) => void) {}
   setSoundSink(sink: (e: SoundEvent) => void) {
     this.onSound = sink;
@@ -85,16 +84,7 @@ export class Game {
       this.publish();
     }
   }
-  // Beam audio follows game status: it hums only while the beam is unlocked and the game runs.
-  private syncBeamHum() {
-    const active =
-      this.state.status === "playing" && this.state.weapons.beam.level > 0;
-    if (active === this.beamHum) return;
-    this.beamHum = active;
-    this.onSound(active ? "beamOn" : "beamOff");
-  }
   publish() {
-    this.syncBeamHum();
     this.emit(snapshot(this.state));
   }
 }

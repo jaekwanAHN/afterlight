@@ -35,9 +35,10 @@ export interface WeaponState {
     level: number;
     damage: number;
     width: number;
-    speed: number;
+    cooldown: number;
     count: number;
-    angle: number;
+    timer: number;
+    charge: number;
   };
   nova: {
     level: number;
@@ -80,9 +81,10 @@ export function createWeapons(): WeaponState {
       level: 0,
       damage: beam.damage,
       width: beam.width,
-      speed: beam.speed,
+      cooldown: beam.cooldown,
       count: beam.count,
-      angle: 0,
+      timer: 0,
+      charge: 0,
     },
     nova: {
       level: 0,

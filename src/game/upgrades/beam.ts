@@ -3,7 +3,7 @@ export const BEAM_UPGRADES: Upgrade[] = [
   {
     id: "beam",
     name: "Dawn lance",
-    description: "광선 획득 · 회전하는 빛줄기가 닿는 모든 적을 태움",
+    description: "광선 획득 · 충전 후 강력한 빛줄기를 한 번에 발사",
     category: "BEAM",
     icon: "╱",
     maxLevel: 1,
@@ -38,22 +38,22 @@ export const BEAM_UPGRADES: Upgrade[] = [
     },
   },
   {
-    id: "beam-speed",
-    name: "Sweeping arc",
-    description: "광선 회전 속도 +20%",
+    id: "beam-haste",
+    name: "Rapid charge",
+    description: "광선 재사용 대기시간 −12%",
     category: "BEAM",
-    icon: "↻",
-    maxLevel: 4,
+    icon: "ϟ",
+    maxLevel: 6,
     requires: "beam",
     apply: (s) => {
-      s.weapons.beam.speed *= 1.2;
+      s.weapons.beam.cooldown *= 0.88;
       s.weapons.beam.level++;
     },
   },
   {
     id: "beam-count",
     name: "Split spectrum",
-    description: "광선 +1",
+    description: "광선 +1 (부채꼴로 퍼짐)",
     category: "BEAM",
     icon: "✳",
     maxLevel: 2,

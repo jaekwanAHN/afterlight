@@ -3,7 +3,7 @@ import { createState } from "../core/GameState";
 import { GAME_CONFIG } from "../config/gameConfig";
 import { ENEMY_CONFIG } from "../config/enemyConfig";
 import { orbitPositions } from "../weapons/OrbitWeapon";
-import { beamSegments } from "../weapons/BeamWeapon";
+import { beamEnd } from "../weapons/BeamWeapon";
 import { WEAPON_CONFIG } from "../config/weaponConfig";
 import { drawScenery } from "./Scenery";
 import { drawEnemy, drawItem, drawPlayer } from "./EntityRenderer";
@@ -46,7 +46,6 @@ export class Renderer {
         flash: 0,
         bossIndex: 0,
         orbitHitAt: 0,
-        beamHitAt: 0,
         pushX: 0,
         pushY: 0,
         dead: false,
@@ -200,25 +199,32 @@ export class Renderer {
       c.stroke();
       c.restore();
     }
-    if (state.weapons.beam.level) {
-      const w = state.weapons.beam;
-      const pulse = 0.9 + Math.sin(time * 18) * 0.1;
-      c.lineCap = "round";
-      for (const end of beamSegments(state)) {
-        c.strokeStyle = "#ff9d5c22";
-        c.lineWidth = w.width * 2.6 * pulse;
-        c.beginPath();
-        c.moveTo(p.x, p.y);
-        c.lineTo(end.x, end.y);
-        c.stroke();
-        c.strokeStyle = "#ffb36e88";
-        c.lineWidth = w.width * pulse;
-        c.stroke();
-        c.strokeStyle = "#fff1d6";
-        c.lineWidth = Math.max(1.5, w.width * 0.28);
-        c.stroke();
-      }
-      circle(c, p.x, p.y, 9 + Math.sin(time * 18) * 2, "#ffd9a6");
+    c.lineCap = "round";
+    for (const b of state.beams) {
+      const life = b.life / b.duration;
+      const end = beamEnd(state, b.angle);
+      c.globalAlpha = life;
+      c.strokeStyle = "#ff9d5c33";
+      c.lineWidth = b.width * (1.6 + (1 - life) * 2);
+      c.beginPath();
+      c.moveTo(p.x, p.y);
+      c.lineTo(end.x, end.y);
+      c.stroke();
+      c.strokeStyle = "#ffb36e";
+      c.lineWidth = b.width * life;
+      c.stroke();
+      c.strokeStyle = "#fff6e6";
+      c.lineWidth = Math.max(1, b.width * 0.35 * life);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+    if (state.weapons.beam.charge > 0) {
+      // Charge-up: a glow swells at the player and a ring collapses inward.
+      const t = 1 - state.weapons.beam.charge / WEAPON_CONFIG.beam.chargeTime;
+      circle(c, p.x, p.y, 6 + t * 18, "#ffd9a6" + (t > 0.5 ? "cc" : "66"));
+      c.globalAlpha = t;
+      ring(c, p.x, p.y, 60 - t * 45, "#ffb36e", 2 + t * 3);
+      c.globalAlpha = 1;
     }
     for (const n of state.novas) {
       const life = 1 - n.radius / n.maxRadius;

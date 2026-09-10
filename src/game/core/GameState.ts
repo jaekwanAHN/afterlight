@@ -2,6 +2,7 @@ import type { UpgradeChoice } from "../upgrades/upgradeTypes";
 import type { Projectile } from "../entities/Projectile";
 import type { Boomerang } from "../entities/Boomerang";
 import type { Nova } from "../entities/Nova";
+import type { BeamShot } from "../entities/BeamShot";
 import type { FlamePatch } from "../entities/FlamePatch";
 import type { Item } from "../entities/Item";
 import { ITEM_CONFIG } from "../config/itemConfig";
@@ -20,6 +21,7 @@ export interface GameState {
   projectiles: Projectile[];
   boomerangs: Boomerang[];
   novas: Nova[];
+  beams: BeamShot[];
   flames: FlamePatch[];
   items: Item[];
   orbs: ExperienceOrb[];
@@ -45,6 +47,7 @@ export function createState(): GameState {
     projectiles: [],
     boomerangs: [],
     novas: [],
+    beams: [],
     flames: [],
     items: [],
     orbs: [],

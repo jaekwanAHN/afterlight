@@ -222,6 +222,16 @@ const RECIPES: Record<
     tones: [{ wave: "sine", from: 160, to: 30, duration: 0.9, gain: 0.7 }],
     noise: { duration: 0.8, gain: 0.6, cutoff: 2600 },
   },
+  heal: {
+    tones: [523, 659, 784].map((f, i) => ({
+      wave: "sine" as Wave,
+      from: f,
+      to: f * 1.02,
+      duration: 0.3,
+      gain: 0.16,
+      delay: i * 0.08,
+    })),
+  },
   boss: {
     tones: [0, 1, 2].map((i) => ({
       wave: "square" as Wave,

@@ -70,7 +70,6 @@ export class Renderer {
         x: -60,
         y: 250,
         radius: 13,
-        life: 99,
         dead: false,
       },
       {
@@ -79,7 +78,6 @@ export class Renderer {
         x: 300,
         y: -20,
         radius: 13,
-        life: 99,
         dead: false,
       },
     ];

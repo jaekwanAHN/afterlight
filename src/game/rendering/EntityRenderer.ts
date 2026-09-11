@@ -1,7 +1,6 @@
 import type { Enemy } from "../entities/Enemy";
 import type { Player } from "../entities/Player";
 import type { Item } from "../entities/Item";
-import { ITEM_CONFIG } from "../config/itemConfig";
 import { ENEMY_CONFIG } from "../config/enemyConfig";
 import { circle, diamond, ring } from "./primitives";
 export function drawEnemy(
@@ -96,10 +95,13 @@ export function drawItem(
   item: Item,
   time: number,
 ) {
-  // Blink during the last seconds so the player knows it is about to vanish.
-  if (item.life < ITEM_CONFIG.blinkFor && Math.floor(time * 6) % 2) return;
   const bob = Math.sin(time * 3 + item.id) * 3;
-  const glow = item.kind === "magnet" ? "#7fd4ff" : "#ff8a5c";
+  const glow =
+    item.kind === "magnet"
+      ? "#7fd4ff"
+      : item.kind === "bomb"
+        ? "#ff8a5c"
+        : "#8cf5a6";
   c.save();
   c.translate(item.x, item.y + bob);
   circle(c, 0, 6 - bob, item.radius + 1, "#040b1099");
@@ -121,6 +123,13 @@ export function drawItem(
     c.fillStyle = "#e9f6ff";
     c.fillRect(-11, 5, 6, 4);
     c.fillRect(5, 5, 6, 4);
+  } else if (item.kind === "heal") {
+    // Medkit: a soft green capsule with a white cross.
+    circle(c, 0, 0, 10, "#1f4a33");
+    ring(c, 0, 0, 10, "#8cf5a6", 1.5);
+    c.fillStyle = "#f2fff5";
+    c.fillRect(-2.5, -7, 5, 14);
+    c.fillRect(-7, -2.5, 14, 5);
   } else {
     circle(c, 0, 2, 10, "#2a1f2b");
     ring(c, 0, 2, 10, "#ff9d6b", 1.5);

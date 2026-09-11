@@ -2,6 +2,7 @@ import type { GameState } from "../core/GameState";
 import type { ItemKind } from "../entities/Item";
 import { ITEM_CONFIG } from "../config/itemConfig";
 import { circlesOverlap } from "../utils/collision";
+const ITEM_KINDS: ItemKind[] = ["magnet", "bomb", "heal"];
 export function nextItemDelay(random: () => number = Math.random) {
   return (
     ITEM_CONFIG.minInterval +
@@ -16,8 +17,10 @@ export function spawnItems(
   state.itemTimer -= dt;
   if (state.itemTimer > 0) return;
   state.itemTimer = nextItemDelay(random);
-  if (state.items.length >= ITEM_CONFIG.maxAlive) return;
-  const kind: ItemKind = random() < 0.5 ? "magnet" : "bomb";
+  const kind =
+    ITEM_KINDS[
+      Math.min(ITEM_KINDS.length - 1, Math.floor(random() * ITEM_KINDS.length))
+    ];
   const half = Math.hypot(state.viewport.width, state.viewport.height) / 2;
   const distance =
     half *
@@ -30,22 +33,18 @@ export function spawnItems(
     x: state.player.x + Math.cos(angle) * distance,
     y: state.player.y + Math.sin(angle) * distance,
     radius: ITEM_CONFIG.radius,
-    life: ITEM_CONFIG.lifetime,
     dead: false,
   });
 }
-export function collectItems(state: GameState, dt: number) {
+// Items never expire: they stay on the field until the player walks over them.
+export function collectItems(state: GameState) {
   const p = state.player;
   for (const item of state.items) {
-    item.life -= dt;
-    if (item.life <= 0) {
-      item.dead = true;
-      continue;
-    }
     if (!circlesOverlap(p, item)) continue;
     item.dead = true;
     if (item.kind === "magnet") activateMagnet(state);
-    else detonateBomb(state);
+    else if (item.kind === "bomb") detonateBomb(state);
+    else healPlayer(state);
   }
   state.items = state.items.filter((i) => !i.dead);
 }
@@ -77,4 +76,18 @@ export function detonateBomb(state: GameState) {
     duration: ITEM_CONFIG.blastDuration,
   });
   state.sounds.push("bomb");
+}
+export function healPlayer(state: GameState) {
+  const p = state.player;
+  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * ITEM_CONFIG.healFraction);
+  // Reuses the generic burst effect: an expanding green ring around the player.
+  state.effects.push({
+    x: p.x,
+    y: p.y,
+    radius: 30,
+    color: "#8cf5a6",
+    life: 0.5,
+    duration: 0.5,
+  });
+  state.sounds.push("heal");
 }

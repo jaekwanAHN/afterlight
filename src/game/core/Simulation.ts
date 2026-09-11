@@ -54,7 +54,7 @@ export function simulate(
   dropFlames(state);
   updateFlames(state, grid, dt);
   playerContacts(state, grid);
-  collectItems(state, dt);
+  collectItems(state);
   collectDeaths(state);
   updateEffects(state, dt);
   if (state.status === "playing") {

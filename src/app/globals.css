@@ -371,13 +371,14 @@ kbd {
   transition: width 0.1s linear;
 }
 .boss-hud {
+  --boss-color: #ff5c8a;
   position: absolute;
   top: 96px;
   left: 50%;
   transform: translateX(-50%);
   width: min(420px, 60vw);
   padding: 10px 14px;
-  border: 1px solid #6b2a44;
+  border: 1px solid color-mix(in srgb, var(--boss-color) 45%, #1a0f16);
   border-radius: 8px;
   background: #1a0f16cc;
   animation: appear 0.3s ease-out;
@@ -386,10 +387,14 @@ kbd {
   margin-bottom: 7px;
 }
 .boss-hud .meter-label > span {
-  color: #ff7ea2;
+  color: var(--boss-color);
 }
 .meter.boss > span {
-  background: linear-gradient(90deg, #ff5c8a, #ff9ab8);
+  background: linear-gradient(
+    90deg,
+    var(--boss-color),
+    color-mix(in srgb, var(--boss-color) 60%, white)
+  );
 }
 .timer {
   position: absolute;

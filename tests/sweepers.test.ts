@@ -3,7 +3,11 @@ import { createState } from "../src/game/core/GameState";
 import { makeEnemy } from "../src/game/systems/EnemySpawnSystem";
 import { moveEnemies } from "../src/game/systems/EnemyMovementSystem";
 import { UPGRADES } from "../src/game/upgrades/upgrades";
-import { updateBeams } from "../src/game/weapons/BeamWeapon";
+import {
+  beamLength,
+  beamReach,
+  updateBeams,
+} from "../src/game/weapons/BeamWeapon";
 import { WEAPON_CONFIG } from "../src/game/config/weaponConfig";
 import { fireNova, updateNovas } from "../src/game/weapons/NovaWeapon";
 import { dropFlames, updateFlames } from "../src/game/weapons/FlameWeapon";
@@ -52,6 +56,30 @@ it("beam charges, fires one burst along its line, then fades", () => {
   updateBeams(s, 1);
   expect(s.beams).toHaveLength(0);
   expect(s.sounds).toHaveLength(2);
+});
+it("beam always reaches the visible edge of the viewport", () => {
+  const s = createState();
+  s.viewport = { width: 1000, height: 600 };
+  const over = WEAPON_CONFIG.beam.overshoot;
+  expect(beamLength(s, 0)).toBeCloseTo(500 + over);
+  expect(beamLength(s, Math.PI)).toBeCloseTo(500 + over);
+  expect(beamLength(s, Math.PI / 2)).toBeCloseTo(300 + over);
+  expect(beamLength(s, Math.atan2(300, 500))).toBeCloseTo(
+    Math.hypot(500, 300) + over,
+  );
+  expect(beamReach(s)).toBeCloseTo(Math.hypot(500, 300) + over);
+  // A taller viewport (portrait phone) stretches the vertical beam instead.
+  s.viewport = { width: 400, height: 800 };
+  expect(beamLength(s, Math.PI / 2)).toBeCloseTo(400 + over);
+  expect(beamLength(s, 0)).toBeCloseTo(200 + over);
+  // Damage covers the whole line, so an enemy just inside the far edge is hit.
+  s.weapons.beam.level = 1;
+  const edge = place(s, 0, 390);
+  const beyond = place(s, 0, 400 + over + edge.radius + s.weapons.beam.width);
+  updateBeams(s, 0);
+  updateBeams(s, WEAPON_CONFIG.beam.chargeTime);
+  expect(edge.hp).toBe(edge.maxHp - s.weapons.beam.damage);
+  expect(beyond.hp).toBe(beyond.maxHp);
 });
 it("beam stays quiet without a target and fans out with extra beams", () => {
   const s = createState();

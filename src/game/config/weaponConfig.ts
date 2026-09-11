@@ -35,6 +35,7 @@ export const WEAPON_CONFIG = {
     damage: 30,
     cooldown: 2.4,
     radius: 90,
+    count: 1,
     flashDuration: 0.45,
   },
   beam: {

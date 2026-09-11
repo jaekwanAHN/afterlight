@@ -50,4 +50,17 @@ export const STORM_UPGRADES: Upgrade[] = [
       s.weapons.storm.level++;
     },
   },
+  {
+    id: "storm-count",
+    name: "Thunderhead",
+    description: "낙뢰 +1 (서로 다른 적 위에 동시 낙하)",
+    category: "STORM",
+    icon: "☇",
+    maxLevel: 3,
+    requires: "storm",
+    apply: (s) => {
+      s.weapons.storm.count++;
+      s.weapons.storm.level++;
+    },
+  },
 ];

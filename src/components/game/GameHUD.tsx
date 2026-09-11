@@ -1,4 +1,5 @@
 import type { Snapshot } from "@/game/core/GameState";
+import { bossLook } from "@/game/config/enemyConfig";
 import { formatTime } from "@/game/utils/math";
 export function GameHUD({
   ui,
@@ -43,7 +44,16 @@ export function GameHUD({
         </button>
       </header>
       {ui.boss && (
-        <div className="boss-hud" role="status" aria-live="polite">
+        <div
+          className="boss-hud"
+          role="status"
+          aria-live="polite"
+          style={
+            {
+              "--boss-color": bossLook(ui.boss.index).color,
+            } as React.CSSProperties
+          }
+        >
           <div className="meter-label">
             <span>☠ BOSS {ui.boss.index}</span>
             <strong>

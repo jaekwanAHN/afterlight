@@ -1,21 +1,23 @@
 import type { Enemy } from "../entities/Enemy";
 import type { Player } from "../entities/Player";
 import type { Item } from "../entities/Item";
-import { ENEMY_CONFIG } from "../config/enemyConfig";
+import { ENEMY_CONFIG, bossLook, type BossLook } from "../config/enemyConfig";
 import { circle, diamond, ring } from "./primitives";
 export function drawEnemy(
   c: CanvasRenderingContext2D,
   e: Enemy,
   effects: boolean,
 ) {
-  const color = e.flash > 0 && effects ? "#ffffff" : ENEMY_CONFIG[e.kind].color;
+  const look = e.kind === "boss" ? bossLook(e.bossIndex) : null;
+  const base = look ? look.color : ENEMY_CONFIG[e.kind].color;
+  const color = e.flash > 0 && effects ? "#ffffff" : base;
   c.save();
   c.translate(e.x, e.y);
   circle(c, 2, 5, e.radius + 2, "#050b1099");
-  if (e.kind === "boss") {
+  if (look) {
     // Jagged crown silhouette so a boss reads instantly among the crowd.
     ring(c, 0, 0, e.radius + 10, color + "33", 6);
-    c.fillStyle = "#3a1230";
+    c.fillStyle = look.body;
     c.strokeStyle = color;
     c.lineWidth = 3;
     c.beginPath();
@@ -30,11 +32,8 @@ export function drawEnemy(
     c.closePath();
     c.fill();
     c.stroke();
-    ring(c, 0, 0, e.radius * 0.55, "#ff9ab8", 2);
-    circle(c, -9, -4, 4, color);
-    circle(c, 9, -4, 4, color);
-    c.fillStyle = "#ffd6e2";
-    c.fillRect(-12, 8, 24, 3);
+    ring(c, 0, 0, e.radius * 0.55, look.accent, 2);
+    drawBossFace(c, look, color);
   } else if (e.kind === "fast") {
     c.fillStyle = "#532c24";
     c.strokeStyle = color;
@@ -89,6 +88,78 @@ export function drawEnemy(
     c.fillRect(-e.radius, -e.radius - 10, (e.radius * 2 * e.hp) / e.maxHp, 3);
   }
   c.restore();
+}
+function drawBossFace(
+  c: CanvasRenderingContext2D,
+  look: BossLook,
+  color: string,
+) {
+  c.strokeStyle = color;
+  c.lineCap = "round";
+  switch (look.face) {
+    case "furious": {
+      // Brows slanting inward over the eyes, mouth a hard flat line.
+      circle(c, -9, -4, 4, color);
+      circle(c, 9, -4, 4, color);
+      c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(-15, -13);
+      c.lineTo(-4, -9);
+      c.moveTo(15, -13);
+      c.lineTo(4, -9);
+      c.stroke();
+      c.fillStyle = look.accent;
+      c.fillRect(-12, 8, 24, 3);
+      break;
+    }
+    case "grin": {
+      // Wide toothy smile.
+      circle(c, -9, -5, 4, color);
+      circle(c, 9, -5, 4, color);
+      c.lineWidth = 3;
+      c.beginPath();
+      c.arc(0, 4, 13, 0.15 * Math.PI, 0.85 * Math.PI);
+      c.stroke();
+      c.fillStyle = look.accent;
+      for (let i = -2; i <= 2; i++)
+        c.fillRect(i * 5 - 1.5, 9 + Math.abs(i), 3, 4);
+      break;
+    }
+    case "hollow": {
+      // Empty ring eyes and a small round mouth, like a mask.
+      ring(c, -9, -4, 4.5, color, 2);
+      ring(c, 9, -4, 4.5, color, 2);
+      ring(c, 0, 10, 4, look.accent, 2);
+      break;
+    }
+    case "cyclops": {
+      // One big eye with a dark pupil, jagged mouth underneath.
+      circle(c, 0, -5, 8, color);
+      circle(c, 1, -5, 3.5, look.body);
+      c.strokeStyle = look.accent;
+      c.lineWidth = 2;
+      c.beginPath();
+      c.moveTo(-12, 10);
+      for (let i = 0; i < 6; i++) c.lineTo(-12 + (i + 1) * 4, i % 2 ? 10 : 14);
+      c.stroke();
+      break;
+    }
+    case "smirk": {
+      // One eye squinted shut, mouth tilted up on the open side.
+      circle(c, 9, -4, 4, color);
+      c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(-14, -4);
+      c.lineTo(-5, -4);
+      c.stroke();
+      c.strokeStyle = look.accent;
+      c.beginPath();
+      c.moveTo(-10, 11);
+      c.lineTo(8, 7);
+      c.stroke();
+      break;
+    }
+  }
 }
 export function drawItem(
   c: CanvasRenderingContext2D,

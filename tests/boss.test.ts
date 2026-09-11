@@ -3,7 +3,12 @@ import { createState } from "../src/game/core/GameState";
 import { snapshot } from "../src/game/core/GameState";
 import { makeBoss, spawnBosses } from "../src/game/systems/EnemySpawnSystem";
 import { collectDeaths } from "../src/game/systems/CombatSystem";
-import { BOSS_CONFIG, ENEMY_CONFIG } from "../src/game/config/enemyConfig";
+import {
+  BOSS_CONFIG,
+  BOSS_LOOKS,
+  ENEMY_CONFIG,
+  bossLook,
+} from "../src/game/config/enemyConfig";
 it("spawns exactly one boss per minute mark, even across a long frame", () => {
   const s = createState();
   s.elapsed = 59.9;
@@ -47,4 +52,14 @@ it("exposes the newest living boss to the HUD and plays a heavier kill sound", (
   a.dead = true;
   collectDeaths(s);
   expect(snapshot(s).boss).toBeNull();
+});
+it("cycles a distinct look per boss and wraps around the palette", () => {
+  expect(BOSS_LOOKS.length).toBeGreaterThan(1);
+  for (let i = 1; i < BOSS_LOOKS.length; i++) {
+    expect(bossLook(i)).not.toBe(bossLook(i + 1));
+    expect(bossLook(i).color).not.toBe(bossLook(i + 1).color);
+    expect(bossLook(i).face).not.toBe(bossLook(i + 1).face);
+  }
+  expect(bossLook(BOSS_LOOKS.length + 1)).toBe(bossLook(1));
+  expect(bossLook(0)).toBe(BOSS_LOOKS.at(-1));
 });

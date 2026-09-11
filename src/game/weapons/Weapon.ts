@@ -29,6 +29,7 @@ export interface WeaponState {
     damage: number;
     cooldown: number;
     radius: number;
+    count: number;
     timer: number;
   };
   beam: {
@@ -75,6 +76,7 @@ export function createWeapons(): WeaponState {
       damage: storm.damage,
       cooldown: storm.cooldown,
       radius: storm.radius,
+      count: storm.count,
       timer: 0,
     },
     beam: {

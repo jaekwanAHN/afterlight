@@ -48,7 +48,29 @@ it("never picks an off-screen target", () => {
   expect(offscreen.hp).toBe(offscreen.maxHp);
   expect(s.weapons.storm.timer).toBe(0);
 });
-it("upgrades cooldown, damage and range only after unlocking", () => {
+it("extra bolts land on distinct enemies and never exceed those on screen", () => {
+  const { s, inside, near, far, offscreen, grid } = scene();
+  s.weapons.storm.count = 2;
+  s.weapons.storm.radius = 10;
+  // First pick takes index 0 (inside); the swap moves `far` there, so 0 again picks `far`.
+  callStorm(s, grid, 0, () => 0);
+  expect(inside.hp).toBe(inside.maxHp - s.weapons.storm.damage);
+  expect(far.hp).toBe(far.maxHp - s.weapons.storm.damage);
+  expect(near.hp).toBe(near.maxHp);
+  expect(offscreen.hp).toBe(offscreen.maxHp);
+  expect(s.effects.filter((e) => e.kind === "strike")).toHaveLength(2);
+  expect(s.sounds.filter((e) => e === "storm")).toHaveLength(1);
+  // More bolts than targets: every on-screen enemy is hit exactly once.
+  const t = scene();
+  t.s.weapons.storm.count = 10;
+  t.s.weapons.storm.radius = 10;
+  callStorm(t.s, t.grid, 0, () => 0.5);
+  for (const e of [t.inside, t.near, t.far])
+    expect(e.hp).toBe(e.maxHp - t.s.weapons.storm.damage);
+  expect(t.offscreen.hp).toBe(t.offscreen.maxHp);
+  expect(t.s.effects.filter((e) => e.kind === "strike")).toHaveLength(3);
+});
+it("upgrades cooldown, damage, range and count only after unlocking", () => {
   const s = createState();
   s.status = "levelup";
   s.choices = UPGRADES.filter((u) => u.id.startsWith("storm")).map((u) => ({
@@ -58,7 +80,12 @@ it("upgrades cooldown, damage and range only after unlocking", () => {
   expect(applyUpgrade(s, "storm-power")).toBe(false);
   expect(applyUpgrade(s, "storm")).toBe(true);
   const before = { ...s.weapons.storm };
-  for (const id of ["storm-haste", "storm-power", "storm-range"]) {
+  for (const id of [
+    "storm-haste",
+    "storm-power",
+    "storm-range",
+    "storm-count",
+  ]) {
     s.status = "levelup";
     s.choices = UPGRADES.filter((u) => u.id.startsWith("storm")).map((u) => ({
       ...u,
@@ -70,5 +97,6 @@ it("upgrades cooldown, damage and range only after unlocking", () => {
   expect(w.cooldown).toBeLessThan(before.cooldown);
   expect(w.damage).toBeGreaterThan(before.damage);
   expect(w.radius).toBeGreaterThan(before.radius);
-  expect(w.level).toBe(4);
+  expect(w.count).toBe(2);
+  expect(w.level).toBe(5);
 });

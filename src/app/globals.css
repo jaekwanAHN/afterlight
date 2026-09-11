@@ -590,7 +590,8 @@ kbd {
   align-items: flex-start;
   flex-direction: column;
 }
-.upgrade-card:hover {
+.upgrade-card:hover,
+.upgrade-card.is-selected {
   border-color: var(--lime);
   background: #20382b;
 }

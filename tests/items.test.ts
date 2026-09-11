@@ -24,14 +24,14 @@ function item(s: GameState, kind: ItemKind, x = 0, y = 0) {
   s.items.push(i);
   return i;
 }
-it("spawns about once per 50s, never before the first window, and keeps piling up", () => {
+it("spawns about twice a minute, never before the first window, and keeps piling up", () => {
   const s = createState();
   spawnItems(s, ITEM_CONFIG.firstAt - 1, () => 0.5);
   expect(s.items).toHaveLength(0);
   spawnItems(s, 1, () => 0.5);
   expect(s.items).toHaveLength(1);
   const delay = nextItemDelay(() => 0.5);
-  expect(delay).toBe(50);
+  expect(delay).toBe(30);
   expect(nextItemDelay(() => 0)).toBe(ITEM_CONFIG.minInterval);
   expect(nextItemDelay(() => 1)).toBe(ITEM_CONFIG.maxInterval);
   expect(s.itemTimer).toBe(delay);

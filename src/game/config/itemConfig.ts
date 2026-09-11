@@ -1,8 +1,8 @@
 export const ITEM_CONFIG = {
-  // Roughly one pickup per 50 seconds. Items never expire, so a skipped one waits on the field.
+  // Roughly two pickups per minute. Items never expire, so a skipped one waits on the field.
   firstAt: 15,
-  minInterval: 40,
-  maxInterval: 60,
+  minInterval: 20,
+  maxInterval: 40,
   radius: 13,
   // Spawn ring around the player, in fractions of the half-diagonal of the viewport.
   spawnMin: 0.45,

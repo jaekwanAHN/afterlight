@@ -42,7 +42,7 @@ export const WEAPON_CONFIG = {
     width: 18,
     cooldown: 3.2,
     count: 1,
-    length: 900,
+    overshoot: 24,
     chargeTime: 0.55,
     fadeDuration: 0.5,
     spread: 0.22,

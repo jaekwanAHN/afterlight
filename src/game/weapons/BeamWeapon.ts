@@ -3,10 +3,28 @@ import { segmentHitsCircle } from "../utils/collision";
 import { damageEnemy } from "../systems/CombatSystem";
 import { WEAPON_CONFIG } from "../config/weaponConfig";
 import { nearestEnemy } from "./targeting";
+// The player sits at the screen centre, so the beam runs to whichever viewport
+// edge the angle meets first, plus a little overshoot to hide the line cap.
+export function beamLength(state: GameState, angle: number) {
+  const { width, height } = state.viewport;
+  const dx = Math.abs(Math.cos(angle)),
+    dy = Math.abs(Math.sin(angle));
+  const toEdge = Math.min(
+    dx > 1e-9 ? width / 2 / dx : Infinity,
+    dy > 1e-9 ? height / 2 / dy : Infinity,
+  );
+  return toEdge + WEAPON_CONFIG.beam.overshoot;
+}
+// Longest possible beam (toward a corner); used as the targeting radius.
+export function beamReach(state: GameState) {
+  const { width, height } = state.viewport;
+  return Math.hypot(width / 2, height / 2) + WEAPON_CONFIG.beam.overshoot;
+}
 export function beamEnd(state: GameState, angle: number) {
+  const length = beamLength(state, angle);
   return {
-    x: state.player.x + Math.cos(angle) * WEAPON_CONFIG.beam.length,
-    y: state.player.y + Math.sin(angle) * WEAPON_CONFIG.beam.length,
+    x: state.player.x + Math.cos(angle) * length,
+    y: state.player.y + Math.sin(angle) * length,
   };
 }
 // Cooldown → charge → one burst that damages everything on its line → visual fade.
@@ -23,7 +41,7 @@ export function updateBeams(state: GameState, dt: number) {
     return;
   }
   w.timer = Math.max(0, w.timer - dt);
-  if (w.timer > 0 || !nearestEnemy(state, cfg.length)) return;
+  if (w.timer > 0 || !nearestEnemy(state, beamReach(state))) return;
   w.charge = cfg.chargeTime;
   state.sounds.push("beamCharge");
 }
@@ -31,7 +49,7 @@ function fire(state: GameState) {
   const w = state.weapons.beam;
   const cfg = WEAPON_CONFIG.beam;
   const p = state.player;
-  const target = nearestEnemy(state, cfg.length);
+  const target = nearestEnemy(state, beamReach(state));
   const base = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.facing;
   w.timer = w.cooldown;
   state.sounds.push("beamFire");

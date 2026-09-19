@@ -31,10 +31,12 @@ export interface GameState {
   weapons: WeaponState;
   upgradeLevels: Record<string, number>;
   choices: UpgradeChoice[];
+  upgradeReason: "level" | "boss";
   nextId: number;
   spawnTimer: number;
   itemTimer: number;
   bossesSpawned: number;
+  pendingBossUpgrades: number;
   elapsed: number;
   kills: number;
   viewport: { width: number; height: number };
@@ -56,6 +58,8 @@ export function createState(): GameState {
     weapons: createWeapons(),
     upgradeLevels: {},
     choices: [],
+    upgradeReason: "level",
+    pendingBossUpgrades: 0,
     nextId: 1,
     spawnTimer: 0,
     itemTimer: ITEM_CONFIG.firstAt,
@@ -77,8 +81,10 @@ function activeBoss(s: GameState) {
 }
 export interface Snapshot {
   choices: UpgradeChoice[];
+  upgradeReason: "level" | "boss";
   orbitLevel: number;
   boltCount: number;
+  ricochetLevel: number;
   boomerangLevel: number;
   stormLevel: number;
   beamLevel: number;
@@ -97,6 +103,8 @@ export interface Snapshot {
 export function snapshot(s: GameState): Snapshot {
   return {
     choices: [...s.choices],
+    upgradeReason: s.upgradeReason,
+    ricochetLevel: s.weapons.ricochet.level,
     orbitLevel: s.weapons.orbit.level,
     boltCount: s.weapons.bolt.projectileCount,
     boomerangLevel: s.weapons.boomerang.level,

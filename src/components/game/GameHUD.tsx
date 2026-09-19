@@ -162,6 +162,16 @@ export function GameHUD({
           >
             ♨<small>{ui.flameLevel || "—"}</small>
           </div>
+          <div
+            className={`weapon-slot ${ui.ricochetLevel ? "" : "locked"}`}
+            title={
+              ui.ricochetLevel
+                ? `Echo shard · Lv.${ui.ricochetLevel}`
+                : "강화 선택 시 반사탄 획득 가능"
+            }
+          >
+            ⌁<small>{ui.ricochetLevel || "—"}</small>
+          </div>
           <span>
             AUTO ATTACK
             <br />

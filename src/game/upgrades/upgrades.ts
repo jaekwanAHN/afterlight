@@ -1,6 +1,7 @@
 import type { Upgrade, UpgradeChoice } from "./upgradeTypes";
 import type { GameState } from "../core/GameState";
 import { pickRandom } from "../utils/random";
+import { RICOCHET_UPGRADES } from "./ricochet";
 import { BOLT_UPGRADES } from "./bolt";
 import { ORBIT_UPGRADES } from "./orbit";
 import { BOOMERANG_UPGRADES } from "./boomerang";
@@ -12,6 +13,7 @@ import { PASSIVE_UPGRADES } from "./passive";
 // One file per weapon; register new weapons here so level-ups can offer them.
 export const UPGRADES: Upgrade[] = [
   ...BOLT_UPGRADES,
+  ...RICOCHET_UPGRADES,
   ...ORBIT_UPGRADES,
   ...BOOMERANG_UPGRADES,
   ...STORM_UPGRADES,

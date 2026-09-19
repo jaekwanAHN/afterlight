@@ -10,4 +10,9 @@ export interface Projectile {
   damage: number;
   lifetime: number;
   dead: boolean;
+  kind?: "bolt" | "ricochet";
+  pierce?: number;
+  bounces?: number;
+  targetId?: number;
+  hitIds?: Set<number>;
 }

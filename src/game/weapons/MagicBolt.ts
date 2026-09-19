@@ -33,6 +33,9 @@ export function fireMagicBolt(state: GameState, dt: number) {
       damage: w.damage,
       lifetime: WEAPON_CONFIG.bolt.lifetime,
       dead: false,
+      kind: "bolt",
+      pierce: w.pierce,
+      hitIds: new Set(),
     });
   }
 }

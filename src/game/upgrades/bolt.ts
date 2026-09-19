@@ -33,6 +33,17 @@ export const BOLT_UPGRADES: Upgrade[] = [
       s.weapons.bolt.projectileCount++;
     },
   },
+  {
+    id: "bolt-pierce",
+    name: "Piercing light",
+    description: "마법탄이 관통하는 적 +1",
+    category: "MAGIC BOLT",
+    icon: "➤",
+    maxLevel: 5,
+    apply: (s) => {
+      s.weapons.bolt.pierce++;
+    },
+  },
   // Repeatable fallback: keeps three distinct choices available after everything else is capped.
   {
     id: "overcharge",

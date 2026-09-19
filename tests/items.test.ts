@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { createState } from "../src/game/core/GameState";
-import { makeEnemy } from "../src/game/systems/EnemySpawnSystem";
+import { makeBoss, makeEnemy } from "../src/game/systems/EnemySpawnSystem";
 import { collectExperience } from "../src/game/systems/ExperienceSystem";
 import { collectDeaths } from "../src/game/systems/CombatSystem";
 import {
@@ -67,7 +67,7 @@ it("magnet pulls every orb on the field to the player", () => {
   expect(s.orbs).toHaveLength(0);
   expect(s.player.exp).toBe(6);
 });
-it("bomb kills only enemies on screen and they still drop experience", () => {
+it("bomb damages enemies on screen and lethal hits still drop experience", () => {
   const s = createState();
   const near = makeEnemy(s, "tank");
   near.x = 300;
@@ -80,6 +80,7 @@ it("bomb kills only enemies on screen and they still drop experience", () => {
   collectItems(s);
   expect(near.dead).toBe(true);
   expect(far.dead).toBe(false);
+  expect(far.hp).toBe(far.maxHp);
   expect(s.effects.some((e) => e.kind === "blast")).toBe(true);
   expect(s.sounds).toContain("bomb");
   collectDeaths(s);
@@ -115,4 +116,30 @@ it("heal restores a share of max HP without overflowing", () => {
   s.player.hp = 190;
   healPlayer(s);
   expect(s.player.hp).toBe(200);
+});
+
+it("healthy bosses survive bomb damage and weakened bosses drop rewards", () => {
+  const s = createState();
+  const healthy = makeBoss(s, 1);
+  const weakened = makeBoss(s, 2);
+  for (const boss of [healthy, weakened]) {
+    boss.x = 100;
+    boss.y = 0;
+  }
+  weakened.hp = ITEM_CONFIG.bombDamage;
+  s.enemies.push(healthy, weakened);
+  item(s, "bomb");
+  collectItems(s);
+  expect(healthy.hp).toBe(healthy.maxHp - ITEM_CONFIG.bombDamage);
+  expect(healthy.hp).toBeGreaterThan(0);
+  expect(healthy.dead).toBe(false);
+  expect(healthy.flash).toBeGreaterThan(0);
+  expect(weakened.hp).toBe(0);
+  expect(weakened.dead).toBe(true);
+  collectDeaths(s);
+  expect(s.enemies).toEqual([healthy]);
+  expect(s.kills).toBe(1);
+  expect(s.orbs).toHaveLength(1);
+  expect(s.orbs[0].value).toBe(weakened.expReward);
+  expect(s.sounds).toContain("bossKill");
 });

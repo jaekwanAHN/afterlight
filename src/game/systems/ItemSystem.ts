@@ -2,6 +2,7 @@ import type { GameState } from "../core/GameState";
 import type { ItemKind } from "../entities/Item";
 import { ITEM_CONFIG } from "../config/itemConfig";
 import { circlesOverlap } from "../utils/collision";
+import { damageEnemy } from "./CombatSystem";
 const ITEM_KINDS: ItemKind[] = ["magnet", "bomb", "heal"];
 export function nextItemDelay(random: () => number = Math.random) {
   return (
@@ -53,7 +54,7 @@ export function activateMagnet(state: GameState) {
   for (const orb of state.orbs) orb.attracted = true;
   state.sounds.push("magnet");
 }
-// Kills everything on screen. Bodies still drop experience through collectDeaths.
+// Damages every enemy on screen. Lethal hits drop experience through collectDeaths.
 export function detonateBomb(state: GameState) {
   const halfW = state.viewport.width / 2,
     halfH = state.viewport.height / 2;
@@ -63,8 +64,7 @@ export function detonateBomb(state: GameState) {
       Math.abs(e.x - state.player.x) <= halfW &&
       Math.abs(e.y - state.player.y) <= halfH
     ) {
-      e.hp = 0;
-      e.dead = true;
+      damageEnemy(e, ITEM_CONFIG.bombDamage);
     }
   state.effects.push({
     kind: "blast",

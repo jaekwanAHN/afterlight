@@ -4,9 +4,11 @@ import { choiceAction } from "./levelUpKeys";
 import type { UpgradeChoice } from "@/game/upgrades/upgradeTypes";
 export function LevelUpModal({
   choices,
+  reason,
   onChoose,
 }: {
   choices: UpgradeChoice[];
+  reason: "level" | "boss";
   onChoose: (id: string) => void;
 }) {
   const [selected, setSelected] = useState(0);
@@ -33,9 +35,14 @@ export function LevelUpModal({
         aria-labelledby="level-title"
         onKeyDown={onKeyDown}
       >
-        <p className="eyebrow">A LITTLE STRONGER</p>
+        <p className="eyebrow">
+          {reason === "boss" ? "BOSS DEFEATED" : "A LITTLE STRONGER"}
+        </p>
         <h2 id="level-title">Choose your light.</h2>
-        <p>레벨 업! 이번 밤을 함께할 강화를 선택하세요.</p>
+        <p>
+          {reason === "boss" ? "보스 처치 보상!" : "레벨 업!"} 이번 밤을 함께할
+          강화를 선택하세요.
+        </p>
         <div className="upgrade-grid">
           {choices.map((c, i) => (
             <button

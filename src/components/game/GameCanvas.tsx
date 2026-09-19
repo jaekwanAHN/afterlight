@@ -150,6 +150,8 @@ export function GameCanvas() {
           )}
           {ui.status === "levelup" && !settingsOpen && (
             <LevelUpModal
+              key={`${ui.upgradeReason}-${ui.choices.map((c) => `${c.id}:${c.rank}`).join(",")}`}
+              reason={ui.upgradeReason}
               choices={ui.choices}
               onChoose={(id) => {
                 inputRef.current?.clear();

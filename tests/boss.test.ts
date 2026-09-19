@@ -1,3 +1,4 @@
+import { Game } from "../src/game/core/Game";
 import { expect, it } from "vitest";
 import { createState } from "../src/game/core/GameState";
 import { snapshot } from "../src/game/core/GameState";
@@ -62,4 +63,51 @@ it("cycles a distinct look per boss and wraps around the palette", () => {
   }
   expect(bossLook(BOSS_LOOKS.length + 1)).toBe(bossLook(1));
   expect(bossLook(0)).toBe(BOSS_LOOKS.at(-1));
+});
+
+it("queues one upgrade per boss alongside level-ups and freezes until chosen", () => {
+  const game = new Game(() => {});
+  game.start();
+  const s = game.state;
+  const bosses = [makeBoss(s, 1), makeBoss(s, 2)];
+  for (const boss of bosses) {
+    boss.dead = true;
+    boss.x = 500;
+    boss.y = 0;
+  }
+  s.enemies.push(...bosses);
+  s.player.exp = s.player.expToNextLevel;
+  game.update(0.02, { x: 0, y: 0 });
+  expect(s.upgradeReason).toBe("boss");
+  expect(s.status).toBe("levelup");
+  expect(s.choices).toHaveLength(3);
+  expect(s.player.level).toBe(1);
+  expect(s.pendingBossUpgrades).toBe(1);
+  const time = s.elapsed;
+  game.update(1, { x: 1, y: 0 });
+  expect(s.elapsed).toBe(time);
+  collectDeaths(s);
+  expect(s.pendingBossUpgrades).toBe(1);
+  game.choose(s.choices[0].id);
+  expect(s.upgradeReason).toBe("boss");
+  expect(s.pendingBossUpgrades).toBe(0);
+  game.choose(s.choices[0].id);
+  expect(s.upgradeReason).toBe("level");
+  expect(s.player.level).toBe(2);
+  game.choose(s.choices[0].id);
+  expect(s.status).toBe("playing");
+  expect(s.orbs).toHaveLength(2);
+  game.start();
+  expect(game.state.pendingBossUpgrades).toBe(0);
+});
+it("does not replace game over with a boss reward", () => {
+  const game = new Game(() => {});
+  game.start();
+  const boss = makeBoss(game.state, 1);
+  boss.dead = true;
+  game.state.enemies.push(boss);
+  game.state.player.hp = 0;
+  game.update(0.02, { x: 0, y: 0 });
+  expect(game.state.status).toBe("gameover");
+  expect(game.state.choices).toHaveLength(0);
 });

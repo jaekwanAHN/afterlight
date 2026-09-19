@@ -171,14 +171,16 @@ export class Renderer {
       if (visible(e.x, e.y)) drawEnemy(c, e, this.settings.effects);
     for (const bolt of state.projectiles) {
       if (!visible(bolt.x, bolt.y)) continue;
-      c.strokeStyle = "#86f1e660";
+      c.strokeStyle = bolt.kind === "ricochet" ? "#d6a0ff90" : "#86f1e660";
       c.lineWidth = 3;
       c.beginPath();
       c.moveTo(bolt.x - bolt.vx * 0.035, bolt.y - bolt.vy * 0.035);
       c.lineTo(bolt.x, bolt.y);
       c.stroke();
       circle(c, bolt.x, bolt.y, bolt.radius + 4, "#98ffe719");
-      circle(c, bolt.x, bolt.y, bolt.radius, "#dcfff6");
+      if (bolt.kind === "ricochet")
+        diamond(c, bolt.x, bolt.y, bolt.radius, "#e8baff");
+      else circle(c, bolt.x, bolt.y, bolt.radius, "#dcfff6");
     }
     for (const b of state.boomerangs) {
       if (!visible(b.x, b.y)) continue;

@@ -5,6 +5,16 @@ export interface WeaponState {
     cooldown: number;
     projectileSpeed: number;
     projectileCount: number;
+    pierce: number;
+    timer: number;
+  };
+  ricochet: {
+    level: number;
+    damage: number;
+    cooldown: number;
+    speed: number;
+    count: number;
+    bounces: number;
     timer: number;
   };
   orbit: {
@@ -62,6 +72,7 @@ export function createWeapons(): WeaponState {
   const { boomerang, storm, beam, nova, flame } = WEAPON_CONFIG;
   return {
     bolt: { ...WEAPON_CONFIG.bolt, timer: 0 },
+    ricochet: { ...WEAPON_CONFIG.ricochet, level: 0, timer: 0 },
     orbit: { ...WEAPON_CONFIG.orbit, level: 0, angle: 0 },
     boomerang: {
       level: 0,

@@ -7,6 +7,7 @@ import { movePlayer } from "../systems/MovementSystem";
 import { spawnBosses, spawnEnemies } from "../systems/EnemySpawnSystem";
 import { moveEnemies } from "../systems/EnemyMovementSystem";
 import { playerContacts } from "../systems/CollisionSystem";
+import { fireRicochet } from "../weapons/RicochetWeapon";
 import { fireMagicBolt } from "../weapons/MagicBolt";
 import { updateOrbit } from "../weapons/OrbitWeapon";
 import { throwBoomerangs, updateBoomerangs } from "../weapons/BoomerangWeapon";
@@ -43,6 +44,7 @@ export function simulate(
   moveEnemies(state, grid, dt);
   grid.rebuild(state.enemies);
   fireMagicBolt(state, dt);
+  fireRicochet(state, dt);
   updateProjectiles(state, grid, dt);
   updateOrbit(state, grid, dt);
   throwBoomerangs(state, dt);
